@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">eBay_Search2</string>
+    <string name="title_search">SEARCH</string>
+    <string name="title_wishlist">WISH LIST</string>
+    <string name="title_home">Product Search</string>
+    <string name="title_search_result">Search Results</string>
+    <string name="error_mandatory_field">Please enter mandatory field</string>
+
+    <string name="home_text">Hello</string>
+    <string-array name="category_array">
+        <item>All</item>
+        <item>Art</item>
+        <item>Baby</item>
+        <item>Books</item>
+        <item>Clothing, Shoes and Accessories</item>
+        <item>Computer, Tablets and Network</item>
+        <item>Health and Beauty</item>
+        <item>Music</item>
+        <item>Video, Games and Consoles</item>
+    </string-array>
+
+<!--    <string name="hello_blank_fragment">Hello blank fragment</string>-->
+    <string name="title_activity_product_detail">ProductDetailActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+</resources>

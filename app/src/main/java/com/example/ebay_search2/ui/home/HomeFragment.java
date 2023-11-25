@@ -1,0 +1,266 @@
+package com.example.ebay_search2.ui.home;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.ebay_search2.ProductResultsActivity;
+import com.example.ebay_search2.R;
+import com.example.ebay_search2.ui.WishlistManager;
+import com.example.ebay_search2.databinding.FragmentHomeBinding;
+import com.example.ebay_search2.ui.Product;
+import com.google.android.material.textfield.TextInputLayout;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class HomeFragment extends Fragment {
+
+    private FragmentHomeBinding binding;
+
+    private static String TAG = "HomeFragment";
+    private static final String URL = "http://10.0.2.2:3000";
+    private static final String ERROR_TEXT = "Please enter mandatory field";
+    private View root;
+    private TextInputLayout inputKeywordLayout;
+    private TextInputLayout inputZipcodeLayout;
+    private EditText inputKeyword;
+    private EditText inputDistance;
+    private EditText inputZipcode;
+    private LinearLayout nearbySearchSection;
+    private RadioGroup searchFromGroup;
+    private RadioButton searchFromCurrentButton;
+    private RadioButton searchFromZipcodeButton;
+    private CheckBox enableNearbySearchCheckbox;
+    private Button searchButton;
+    private Button clearButton;
+
+    private static WishlistManager wishlistManager = WishlistManager.getInstance();
+
+    private RequestQueue queue;
+
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        HomeViewModel homeViewModel =
+                new ViewModelProvider(this).get(HomeViewModel.class);
+
+        binding = FragmentHomeBinding.inflate(inflater, container, false);
+        root = binding.getRoot();
+
+        queue = Volley.newRequestQueue(requireContext());
+        queue.start();
+
+        Log.d(TAG, "onCreateView: ");
+
+        initializeForm(root);
+        // Initialize the wishlist from the server
+        StringRequest wishListRequest = initializeWishList();
+        queue.add(wishListRequest);
+
+        searchFromGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                toggleSearchFromButton(checkedId);
+            }
+        });
+        // Toggle enable nearby search
+        enableNearbySearchCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // If CheckBox is checked, make the components visible; otherwise, hide them
+            nearbySearchSection.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        // set up search button
+        searchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Code to be executed when the button is clicked
+                // For example, you can show a Toast message
+                Log.d(TAG, "onClick: search");
+                if (!validateForm()) {
+                    Toast.makeText(requireContext(), "Please fix all fields with errors", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+//                start product results activity
+                Intent intent = new Intent(getActivity(), ProductResultsActivity.class);
+                // TODO: pass the form data to the product results activity
+                startActivity(intent);
+            }
+        });
+
+        // set up the clear button
+        clearButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: clear");
+                resetForm();
+            }
+        });
+
+
+        return root;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        queue.stop();
+        binding = null;
+    }
+
+    private void initializeForm(View root) {
+        nearbySearchSection = root.findViewById(R.id.nearbySearchSection);
+        searchFromGroup = root.findViewById(R.id.search_from);
+        searchFromCurrentButton = root.findViewById(R.id.search_from_current);
+        searchFromZipcodeButton = root.findViewById(R.id.search_from_zipcode);
+        inputKeywordLayout = root.findViewById(R.id.input_keyword_layout);
+        inputZipcodeLayout = root.findViewById(R.id.input_zipcode_layout);
+        inputKeyword = root.findViewById(R.id.input_keyword);
+        inputDistance = root.findViewById(R.id.input_distance);
+        inputZipcode = root.findViewById(R.id.input_zipcode);
+        enableNearbySearchCheckbox = root.findViewById(R.id.enableNearbySearchCheckbox);
+        searchButton = root.findViewById(R.id.button_search);
+        clearButton = root.findViewById(R.id.button_clear);
+
+        nearbySearchSection.setVisibility(View.GONE);
+        enableNearbySearchCheckbox.setChecked(false);
+        searchFromCurrentButton.setChecked(true);
+        searchFromZipcodeButton.setChecked(false);
+        inputZipcode.setEnabled(false);
+        inputKeywordLayout.setErrorIconDrawable(0);
+        inputZipcodeLayout.setErrorIconDrawable(0);
+
+        Spinner spinner = (Spinner) root.findViewById(R.id.category_spinner);
+        // Create an ArrayAdapter using the string array and a default spinner layout.
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+                requireContext(),
+                R.array.category_array,
+                android.R.layout.simple_spinner_item
+        );
+        // Specify the layout to use when the list of choices appears.
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+    }
+
+    private StringRequest initializeWishList() {
+        StringRequest wishListRequest = new StringRequest(Request.Method.GET, URL+"/get-wish-list",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Display the first 500 characters of the response string.
+                        Log.d(TAG, response);
+                        try {
+                            if (response != null) {
+                                // parse the response
+                                JSONArray items = new JSONArray(response);
+                                Log.d(TAG, "wishListItems: " + items);
+                                addItemsInWishList(items);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, error.toString());
+            }
+        });
+        return wishListRequest;
+    }
+
+    private void resetForm() {
+        inputKeyword.setText("");
+        inputDistance.setText("");
+        inputZipcode.setText("");
+        inputKeywordLayout.setError(null);
+        inputZipcodeLayout.setError(null);
+        nearbySearchSection.setVisibility(View.GONE);
+        enableNearbySearchCheckbox.setChecked(false);
+    }
+
+    private void toggleSearchFromButton(int checkedId) {
+        if (checkedId == R.id.search_from_current) {
+            // Do something when radioButton1 is checked
+            Log.d(TAG, "onCheckedChanged: current location");
+            searchFromCurrentButton.setChecked(true);
+            searchFromZipcodeButton.setChecked(false);
+            inputZipcode.setEnabled(false);
+
+        } else if (checkedId == R.id.search_from_zipcode) {
+            // Do something when radioButton2 is checked
+            Log.d(TAG, "onCheckedChanged: zipcode");
+            searchFromCurrentButton.setChecked(false);
+            searchFromZipcodeButton.setChecked(true);
+            inputZipcode.setEnabled(true);
+        }
+    }
+
+    private boolean validateForm() {
+        boolean isValidForm = true;
+        String keyword = inputKeyword.getText().toString().trim();
+        String zipcode = inputZipcode.getText().toString();
+        Log.d(TAG, zipcode);
+        if (keyword.isEmpty()) {
+            inputKeywordLayout.setError(ERROR_TEXT);
+            Log.d(TAG, "validateForm: keyword failed");
+            isValidForm = false;
+        }
+        if (inputZipcode.isEnabled() & zipcode.isEmpty()) {
+            Log.d(TAG, "validateForm: zipcode failed");
+            inputZipcodeLayout.setError(ERROR_TEXT);
+            isValidForm = false;
+        }
+
+        if (isValidForm) {
+            inputKeywordLayout.setError(null);
+            inputZipcodeLayout.setError(null);
+            Log.d(TAG, "validateForm: success");
+        }
+
+        return isValidForm;
+    }
+
+    private void addItemsInWishList(JSONArray items) throws JSONException {
+        Log.d(TAG, "addItemsInWishList: " + items.length());
+        for (int i = 0; i < items.length(); i++) {
+            JSONObject item = items.getJSONObject(i);
+            String itemId = item.getString("_id");
+            String title = item.has("Title") ? item.getString("Title") : "unknown";
+            String price = item.has("Price") ? item.getString("Price") : "unknown";
+            String shipping = item.has("Shipping") ? item.getString("Shipping") : "unknown";
+            String zip = item.has("Zip") ? item.getString("Zip") : "unknown";
+            String condition = item.has("Condition") ? item.getString("Condition") : "unknown";
+            String image = item.has("Image") ? item.getString("Image") : "";
+            String url = item.has("Url") ? item.getString("Url") : "";
+            Boolean isWishListed = true;
+            Product product = new Product(itemId, title, image, url, zip, shipping, price, condition, isWishListed);
+            Log.d(TAG, "addItemsInWishList: " + product.toString());
+            wishlistManager.addProductToWishlist(itemId, product);
+        }
+    }
+}
