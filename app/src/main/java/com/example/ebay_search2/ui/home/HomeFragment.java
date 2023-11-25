@@ -2,11 +2,18 @@ package com.example.ebay_search2.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -27,6 +34,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ebay_search2.ApiCall;
 import com.example.ebay_search2.ProductResultsActivity;
 import com.example.ebay_search2.R;
 import com.example.ebay_search2.ui.WishlistManager;
@@ -37,6 +45,9 @@ import com.google.android.material.textfield.TextInputLayout;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
@@ -51,6 +62,7 @@ public class HomeFragment extends Fragment {
     private EditText inputKeyword;
     private EditText inputDistance;
     private EditText inputZipcode;
+    private AutoCompleteTextView autoCompleteTextView;
     private LinearLayout nearbySearchSection;
     private RadioGroup searchFromGroup;
     private RadioButton searchFromCurrentButton;
@@ -58,6 +70,11 @@ public class HomeFragment extends Fragment {
     private CheckBox enableNearbySearchCheckbox;
     private Button searchButton;
     private Button clearButton;
+
+    private Handler handler;
+    private AutoSuggestAdaptor autoSuggestAdaptor;
+    private static final int TRIGGER_AUTO_COMPLETE = 100;
+    private static final long AUTO_COMPLETE_DELAY = 300;
 
     private static WishlistManager wishlistManager = WishlistManager.getInstance();
 
@@ -78,6 +95,7 @@ public class HomeFragment extends Fragment {
 
         initializeForm(root);
         // Initialize the wishlist from the server
+//        TODO: move this to splash screen activity
         StringRequest wishListRequest = initializeWishList();
         queue.add(wishListRequest);
 
@@ -121,6 +139,50 @@ public class HomeFragment extends Fragment {
             }
         });
 
+//        auto complete textView test
+        autoCompleteTextView = root.findViewById(R.id.autoCompleteTextView);
+//        set up auto suggest adapter
+        autoSuggestAdaptor = new AutoSuggestAdaptor(requireContext(), android.R.layout.simple_dropdown_item_1line);
+        autoCompleteTextView.setThreshold(2);
+        autoCompleteTextView.setAdapter(autoSuggestAdaptor);
+
+        autoCompleteTextView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        autoCompleteTextView.setText(autoSuggestAdaptor.getObject(position));
+                    }
+                });
+
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int
+                    count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                handler.removeMessages(TRIGGER_AUTO_COMPLETE);
+                handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
+                        AUTO_COMPLETE_DELAY);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.what == TRIGGER_AUTO_COMPLETE) {
+                    if (!TextUtils.isEmpty(autoCompleteTextView.getText())) {
+                        makeApiCall(autoCompleteTextView.getText().toString());
+                    }
+                }
+                return false;
+            }
+        });
+
 
         return root;
     }
@@ -130,6 +192,34 @@ public class HomeFragment extends Fragment {
         super.onDestroyView();
         queue.stop();
         binding = null;
+    }
+
+    private void makeApiCall(String text) {
+        ApiCall.make(requireContext(), text, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "onResponse: " + response);
+                //parsing logic, please change it as per your requirement
+                List<String> stringList = new ArrayList<>();
+                try {
+                    JSONObject responseObject = new JSONObject(response);
+                    JSONArray array = responseObject.getJSONArray("results");
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject row = array.getJSONObject(i);
+                        stringList.add(row.getString("trackName"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //IMPORTANT: set data here and notify
+                autoSuggestAdaptor.setData(stringList);
+                autoSuggestAdaptor.notifyDataSetChanged();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
     }
 
     private void initializeForm(View root) {
