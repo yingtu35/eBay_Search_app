@@ -29,7 +29,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
@@ -78,8 +77,6 @@ public class HomeFragment extends Fragment {
 
     private static WishlistManager wishlistManager = WishlistManager.getInstance();
 
-    private RequestQueue queue;
-
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         HomeViewModel homeViewModel =
@@ -88,16 +85,9 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         root = binding.getRoot();
 
-        queue = Volley.newRequestQueue(requireContext());
-        queue.start();
-
         Log.d(TAG, "onCreateView: ");
 
         initializeForm(root);
-        // Initialize the wishlist from the server
-//        TODO: move this to splash screen activity
-        StringRequest wishListRequest = initializeWishList();
-        queue.add(wishListRequest);
 
         searchFromGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -190,7 +180,6 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        queue.stop();
         binding = null;
     }
 
@@ -256,33 +245,6 @@ public class HomeFragment extends Fragment {
         spinner.setAdapter(adapter);
     }
 
-    private StringRequest initializeWishList() {
-        StringRequest wishListRequest = new StringRequest(Request.Method.GET, URL+"/get-wish-list",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        Log.d(TAG, response);
-                        try {
-                            if (response != null) {
-                                // parse the response
-                                JSONArray items = new JSONArray(response);
-                                Log.d(TAG, "wishListItems: " + items);
-                                addItemsInWishList(items);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, error.toString());
-            }
-        });
-        return wishListRequest;
-    }
-
     private void resetForm() {
         inputKeyword.setText("");
         inputDistance.setText("");
@@ -333,24 +295,5 @@ public class HomeFragment extends Fragment {
         }
 
         return isValidForm;
-    }
-
-    private void addItemsInWishList(JSONArray items) throws JSONException {
-        Log.d(TAG, "addItemsInWishList: " + items.length());
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-            String itemId = item.getString("_id");
-            String title = item.has("Title") ? item.getString("Title") : "unknown";
-            String price = item.has("Price") ? item.getString("Price") : "unknown";
-            String shipping = item.has("Shipping") ? item.getString("Shipping") : "unknown";
-            String zip = item.has("Zip") ? item.getString("Zip") : "unknown";
-            String condition = item.has("Condition") ? item.getString("Condition") : "unknown";
-            String image = item.has("Image") ? item.getString("Image") : "";
-            String url = item.has("Url") ? item.getString("Url") : "";
-            Boolean isWishListed = true;
-            Product product = new Product(itemId, title, image, url, zip, shipping, price, condition, isWishListed);
-            Log.d(TAG, "addItemsInWishList: " + product.toString());
-            wishlistManager.addProductToWishlist(itemId, product);
-        }
     }
 }
