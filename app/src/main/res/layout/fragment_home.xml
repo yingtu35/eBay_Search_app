@@ -146,6 +146,7 @@
                     android:id="@+id/input_distance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:paddingStart="0dp"
                     android:hint="Miles from" />
             </com.google.android.material.textfield.TextInputLayout>
             <TextView
@@ -158,7 +159,7 @@
                 android:id="@+id/search_from"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="20dp">
+                android:paddingStart="30dp">
                 <RadioButton
                     android:id="@+id/search_from_current"
                     android:layout_width="wrap_content"
@@ -170,12 +171,22 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </RadioGroup>
+            <AutoCompleteTextView
+                android:id="@+id/autoCompleteTextView"
+                android:layout_width="330dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="60dp"
+                android:layout_marginTop="-50dp"
+                android:inputType="text"
+                android:maxLines="1"
+                android:hint="zipcode"
+                android:dropDownVerticalOffset="-100dp" />
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/input_zipcode_layout"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="52dp"
-                android:layout_marginTop="-50dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="-60dp"
                 android:layout_gravity="start"
                 style="@style/WhiteTextInputLayout"
                 app:errorEnabled="true"
@@ -185,17 +196,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="0dp"
+                    android:visibility="gone"
                     android:hint="zipcode"/>
             </com.google.android.material.textfield.TextInputLayout>
-            <AutoCompleteTextView
-                android:id="@+id/autoCompleteTextView"
-                android:layout_width="200dp"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="52dp"
-                android:layout_marginTop="-50dp"
-                android:inputType="text"
-                android:maxLines="1"
-                android:hint="zipcode"/>
+
         </LinearLayout>
 
         <LinearLayout

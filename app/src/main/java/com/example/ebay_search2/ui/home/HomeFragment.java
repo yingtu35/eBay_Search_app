@@ -60,7 +60,7 @@ public class HomeFragment extends Fragment {
     private TextInputLayout inputZipcodeLayout;
     private EditText inputKeyword;
     private EditText inputDistance;
-    private EditText inputZipcode;
+//    private EditText inputZipcode;
     private AutoCompleteTextView autoCompleteTextView;
     private LinearLayout nearbySearchSection;
     private RadioGroup searchFromGroup;
@@ -130,7 +130,6 @@ public class HomeFragment extends Fragment {
         });
 
 //        auto complete textView test
-        autoCompleteTextView = root.findViewById(R.id.autoCompleteTextView);
 //        set up auto suggest adapter
         autoSuggestAdaptor = new AutoSuggestAdaptor(requireContext(), android.R.layout.simple_dropdown_item_1line);
         autoCompleteTextView.setThreshold(2);
@@ -192,10 +191,10 @@ public class HomeFragment extends Fragment {
                 List<String> stringList = new ArrayList<>();
                 try {
                     JSONObject responseObject = new JSONObject(response);
-                    JSONArray array = responseObject.getJSONArray("results");
+                    JSONArray array = responseObject.getJSONArray("postalCodes");
                     for (int i = 0; i < array.length(); i++) {
                         JSONObject row = array.getJSONObject(i);
-                        stringList.add(row.getString("trackName"));
+                        stringList.add(row.getString("postalCode"));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -220,16 +219,18 @@ public class HomeFragment extends Fragment {
         inputZipcodeLayout = root.findViewById(R.id.input_zipcode_layout);
         inputKeyword = root.findViewById(R.id.input_keyword);
         inputDistance = root.findViewById(R.id.input_distance);
-        inputZipcode = root.findViewById(R.id.input_zipcode);
+//        inputZipcode = root.findViewById(R.id.input_zipcode);
         enableNearbySearchCheckbox = root.findViewById(R.id.enableNearbySearchCheckbox);
         searchButton = root.findViewById(R.id.button_search);
         clearButton = root.findViewById(R.id.button_clear);
+        autoCompleteTextView = root.findViewById(R.id.autoCompleteTextView);
 
         nearbySearchSection.setVisibility(View.GONE);
         enableNearbySearchCheckbox.setChecked(false);
         searchFromCurrentButton.setChecked(true);
         searchFromZipcodeButton.setChecked(false);
-        inputZipcode.setEnabled(false);
+//        inputZipcode.setEnabled(false);
+        autoCompleteTextView.setEnabled(false);
         inputKeywordLayout.setErrorIconDrawable(0);
         inputZipcodeLayout.setErrorIconDrawable(0);
 
@@ -248,7 +249,8 @@ public class HomeFragment extends Fragment {
     private void resetForm() {
         inputKeyword.setText("");
         inputDistance.setText("");
-        inputZipcode.setText("");
+//        inputZipcode.setText("");
+        autoCompleteTextView.setText("");
         inputKeywordLayout.setError(null);
         inputZipcodeLayout.setError(null);
         nearbySearchSection.setVisibility(View.GONE);
@@ -261,28 +263,32 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "onCheckedChanged: current location");
             searchFromCurrentButton.setChecked(true);
             searchFromZipcodeButton.setChecked(false);
-            inputZipcode.setEnabled(false);
+            autoCompleteTextView.setEnabled(false);
+            inputZipcodeLayout.setError(null);
+//            inputZipcode.setEnabled(false);
 
         } else if (checkedId == R.id.search_from_zipcode) {
             // Do something when radioButton2 is checked
             Log.d(TAG, "onCheckedChanged: zipcode");
             searchFromCurrentButton.setChecked(false);
             searchFromZipcodeButton.setChecked(true);
-            inputZipcode.setEnabled(true);
+            autoCompleteTextView.setEnabled(true);
+//            inputZipcode.setEnabled(true);
         }
     }
 
     private boolean validateForm() {
         boolean isValidForm = true;
         String keyword = inputKeyword.getText().toString().trim();
-        String zipcode = inputZipcode.getText().toString();
+//        String zipcode = inputZipcode.getText().toString();
+        String zipcode = autoCompleteTextView.getText().toString();
         Log.d(TAG, zipcode);
         if (keyword.isEmpty()) {
             inputKeywordLayout.setError(ERROR_TEXT);
             Log.d(TAG, "validateForm: keyword failed");
             isValidForm = false;
         }
-        if (inputZipcode.isEnabled() & zipcode.isEmpty()) {
+        if (autoCompleteTextView.isEnabled() & zipcode.isEmpty()) {
             Log.d(TAG, "validateForm: zipcode failed");
             inputZipcodeLayout.setError(ERROR_TEXT);
             isValidForm = false;

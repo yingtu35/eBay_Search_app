@@ -20,6 +20,9 @@ public class ApiCall {
     private RequestQueue mRequestQueue;
     private static Context mCtx;
 
+    private static final String USERNAME = "yingtu35";
+    private static final String MAX_ROWS = "5";
+
     private static final String URL = "http://10.0.2.2:3000";
 
     public ApiCall(Context ctx) {
@@ -47,8 +50,7 @@ public class ApiCall {
 
     public static void make(Context ctx, String query, Response.Listener<String>
             listener, Response.ErrorListener errorListener) {
-        String url = "https://itunes.apple.com/search?term=" + query
-                + "&country=US";
+        String url = "http://api.geonames.org/postalCodeSearchJSON?postalcode_startsWith=" + query + "&maxRows=" + MAX_ROWS + "&username=" + USERNAME + "&country=US";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 listener, errorListener);
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
