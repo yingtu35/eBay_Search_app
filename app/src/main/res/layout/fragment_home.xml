@@ -74,17 +74,17 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <CheckBox
-                android:id="@+id/condition_new"
+                android:id="@+id/condition_new_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="New" />
             <CheckBox
-                android:id="@+id/condition_used"
+                android:id="@+id/condition_used_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Used" />
             <CheckBox
-                android:id="@+id/condition_unspecified"
+                android:id="@+id/condition_unspecified_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Unspecified" />
@@ -100,12 +100,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
             <CheckBox
-                android:id="@+id/shipping_local"
+                android:id="@+id/local_pickup_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Local Pickup" />
             <CheckBox
-                android:id="@+id/shipping_free"
+                android:id="@+id/free_shipping_checkbox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Free Shipping" />

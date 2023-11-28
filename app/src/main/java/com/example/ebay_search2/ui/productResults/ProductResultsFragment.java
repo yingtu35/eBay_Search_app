@@ -62,6 +62,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
 
     private WishlistManager wishlistManager;
     private LinearLayout progressBarLayout;
+    private String searchParameters;
 
     public ProductResultsFragment() {
         // Required empty public constructor
@@ -105,58 +106,93 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         recyclerView = (RecyclerView) rootView.findViewById(R.id.productResultsRecyclerView);
 
 //        TODO: get the form data from the ProductResultsActivity (uncomment the following line)
-//        ProductResultsActivity activity = (ProductResultsActivity) getActivity();
+        ProductResultsActivity activity = (ProductResultsActivity) getActivity();
 
-//        result = activity.getIntent().getExtras().getString("result");
-//        Log.d(TAG, "onCreateView: "+result);
+        searchParameters = activity.getIntent().getExtras().getString("parameters");
+        Log.d(TAG, "onCreateView: "+searchParameters);
 
         //        initialise the wishlistManager
         wishlistManager = WishlistManager.getInstance();
 
         Log.d(TAG, "onClick: send http request");
-        searchResults();
+//        searchResults(searchParameters);
 
+        searchResultsExample();
         return rootView;
     }
 
-//    TODO: include parameters in the request
-    private void searchResults() {
-        ApiCall.getSearchResults(requireContext(), new Response.Listener<String>() {
+    private void searchResultsExample() {
+        ApiCall.getSearchResultsExample(requireContext(), new Response.Listener<JSONArray>() {
             @Override
-            public void onResponse(String response) {
+            public void onResponse(JSONArray response) {
                 // Display the first 500 characters of the response string.
-                Log.d(TAG, response);
-                try {
+                Log.d(TAG, response.toString());
+                Log.d(TAG, "onResponse: "+response.length());
 //            Log.d(TAG, "onCreateView: "+result);
-                    if (response != null) {
-                        resultJson = new JSONObject(response);
-                        //Log.d(TAG, "onResponse: "+response);
-//                Log.d(TAG, "onResponse object: "+resultJson);
-                        JSONArray items = getItems(resultJson);
-//                Log.d(TAG, "item: "+items);
-                        addItemIntoProductList(items, productsList);
-
+                if (response.length() != 0) {
+                    try {
+                        addItemIntoProductList(response);
                         Log.d(TAG, "productsList: " + productsList);
-                        //      Create adapter and set it to the RecyclerView
+//                          Create adapter and set it to the RecyclerView
                         mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
                         productAdaptor = new ProductAdaptor(productsList, ProductResultsFragment.this, ProductResultsFragment.this);
                         recyclerView.setLayoutManager(mLayoutManager);
                         recyclerView.setAdapter(productAdaptor);
                         Log.d(TAG, "onCreateView: " + productAdaptor.getItemCount());
                         progressBarLayout.setVisibility(View.GONE);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
-
             }
         }, new Response.ErrorListener() {
             @Override
 
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, error.toString());
+                Log.d(TAG, "searchResults error: " + error.toString());
             }
         });
+    }
+
+//    TODO: include parameters in the request
+    private void searchResults(String searchParameters) {
+        try {
+            JSONObject jsonRequest = new JSONObject(searchParameters);
+            Log.d(TAG, "searchResults: " + jsonRequest);
+
+            ApiCall.getSearchResults(requireContext(), jsonRequest, new Response.Listener<JSONArray>() {
+                @Override
+                public void onResponse(JSONArray response) {
+                    // Display the first 500 characters of the response string.
+                    Log.d(TAG, response.toString());
+                    Log.d(TAG, "onResponse: "+response.length());
+//            Log.d(TAG, "onCreateView: "+result);
+                    if (response.length() != 0) {
+                        try {
+                            addItemIntoProductList(response);
+                            Log.d(TAG, "productsList: " + productsList);
+//                          Create adapter and set it to the RecyclerView
+                            mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+                            productAdaptor = new ProductAdaptor(productsList, ProductResultsFragment.this, ProductResultsFragment.this);
+                            recyclerView.setLayoutManager(mLayoutManager);
+                            recyclerView.setAdapter(productAdaptor);
+                            Log.d(TAG, "onCreateView: " + productAdaptor.getItemCount());
+                            progressBarLayout.setVisibility(View.GONE);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }, new Response.ErrorListener() {
+                @Override
+
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(TAG, "searchResults error: " + error.toString());
+                }
+            });
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private JSONArray getItems(JSONObject resultJson) throws JSONException {
@@ -166,22 +202,17 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
                 .getJSONArray("item");
         return items;
     }
-    private void addItemIntoProductList(JSONArray items, List<Product> productsList) throws JSONException {
+    private void addItemIntoProductList(JSONArray items) throws JSONException {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
-            String itemId = item.getJSONArray("itemId").getString(0);
-            String title = item.getJSONArray("title").getString(0);
-            String galleryURL = item.getJSONArray("galleryURL").getString(0);
-            String viewItemURL = item.getJSONArray("viewItemURL").getString(0);
-            String postalCode = item.getJSONArray("postalCode").getString(0);
-            String shippingCost = item.getJSONArray("shippingInfo").getJSONObject(0)
-                    .getJSONArray("shippingServiceCost").getJSONObject(0)
-                    .getString("__value__");
-            String currentPrice = item.getJSONArray("sellingStatus").getJSONObject(0)
-                    .getJSONArray("currentPrice").getJSONObject(0)
-                    .getString("__value__");
-            String condition = item.getJSONArray("condition").getJSONObject(0)
-                    .getJSONArray("conditionDisplayName").getString(0);
+            String itemId = item.getString("itemId").toString();
+            String title = item.getString("title").toString();
+            String galleryURL = item.getString("galleryURL").toString();
+            String viewItemURL = item.getString("viewItemURL").toString();
+            String postalCode = item.getString("postalCode").toString();
+            String shippingCost = item.getJSONObject("shippingInfo").getString("shippingCost").toString();
+            String currentPrice = item.getString("currentPrice").toString();
+            String condition = item.getString("condition").toString();
             Boolean isWishListed = wishlistManager.isInWishlist(itemId);
             Product product = new Product(itemId, title, galleryURL, viewItemURL,
                     postalCode, shippingCost, currentPrice, condition, isWishListed);

@@ -1,14 +1,17 @@
 package com.example.ebay_search2;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -20,10 +23,13 @@ public class ApiCall {
     private RequestQueue mRequestQueue;
     private static Context mCtx;
 
+    private static final String TAG = "ApiCall";
+
     private static final String USERNAME = "yingtu35";
     private static final String MAX_ROWS = "5";
 
     private static final String URL = "http://10.0.2.2:3000";
+    private static final String IPINFOTOKEN = "543916f91709cc";
 
     public ApiCall(Context ctx) {
         mCtx = ctx;
@@ -80,10 +86,76 @@ public class ApiCall {
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
-    public static void getSearchResults(Context ctx, Response.Listener<String>
+    public static void getSearchResults(Context ctx, JSONObject jsonRequest, Response.Listener<JSONArray>
+            listener, Response.ErrorListener errorListener) {
+        Log.d(TAG, "getSearchResults: " + jsonRequest);
+        try {
+            if (jsonRequest.get("locationOption").equals("other")) {
+                Log.d(TAG, "getSearchResults: " + jsonRequest.get("locationOption"));
+                getCurrentLocation(ctx, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            Log.d(TAG, "onResponse: " + response.getString("postal"));
+                            jsonRequest.put("otherLocation", response.getString("postal"));
+                        } catch (Exception e) {
+                            Log.d(TAG, "onResponse: " + e.getMessage());
+                        }
+                        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
+                                + "&category=" + jsonRequest.optString("category")
+                                + "&New=" + jsonRequest.optString("New")
+                                + "&Used=" + jsonRequest.optString("Used")
+                                + "&Unspecified=" + jsonRequest.optString("Unspecified")
+                                + "&conditions=" + jsonRequest.optString("conditions")
+                                + "&localPickup=" + jsonRequest.optString("localPickup")
+                                + "&freeShipping=" + jsonRequest.optString("freeShipping")
+                                + "&distance=" + jsonRequest.optString("distance")
+                                + "&locationOption=" + jsonRequest.optString("locationOption")
+                                + "&otherLocation=" + jsonRequest.optString("otherLocation");
+                        if (jsonRequest.optString("locationOption").equals("zip")) {
+                            url += "&zip=" + jsonRequest.optString("zip");
+                        }
+                        Log.d(TAG, "getSearchResults: " + url);
+                        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                                listener, errorListener);
+                        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+                    }
+                }, errorListener);
+                return;
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "getSearchResults: " + e.getMessage());
+        }
+//        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
+//                + "&category=" + jsonRequest.optString("category")
+//                + "&New=" + jsonRequest.optString("New")
+//                + "&Used=" + jsonRequest.optString("Used")
+//                + "&Unspecified=" + jsonRequest.optString("Unspecified")
+//                + "&conditions=" + jsonRequest.optString("conditions")
+//                + "&localPickup=" + jsonRequest.optString("localPickup")
+//                + "&freeShipping=" + jsonRequest.optString("freeShipping")
+//                + "&distance=" + jsonRequest.optString("distance")
+//                + "&locationOption=" + jsonRequest.optString("locationOption")
+//                + "&otherLocation=" + jsonRequest.optString("otherLocation")
+//                + "&zip=" + jsonRequest.optString("zip");
+//        Log.d(TAG, "getSearchResults: " + url);
+//        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+//                listener, errorListener);
+//        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    public static void getSearchResultsExample(Context ctx, Response.Listener<JSONArray>
             listener, Response.ErrorListener errorListener) {
         String url = URL + "/search-ebay-example";
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                listener, errorListener);
+        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    private static void getCurrentLocation(Context ctx, Response.Listener<JSONObject>
+            listener, Response.ErrorListener errorListener) {
+        String url = "https://ipinfo.io/json?token=" + IPINFOTOKEN;
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 listener, errorListener);
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
     }

@@ -59,6 +59,7 @@ public class HomeFragment extends Fragment {
     private TextInputLayout inputKeywordLayout;
     private TextInputLayout inputZipcodeLayout;
     private EditText inputKeyword;
+    private Spinner spinner;
     private EditText inputDistance;
 //    private EditText inputZipcode;
     private AutoCompleteTextView autoCompleteTextView;
@@ -66,9 +67,16 @@ public class HomeFragment extends Fragment {
     private RadioGroup searchFromGroup;
     private RadioButton searchFromCurrentButton;
     private RadioButton searchFromZipcodeButton;
+    private CheckBox conditionNewCheckbox;
+    private CheckBox conditionUsedCheckbox;
+    private CheckBox conditionUnspecifiedCheckbox;
+    private CheckBox localPickupCheckbox;
+    private CheckBox freeShippingCheckbox;
     private CheckBox enableNearbySearchCheckbox;
     private Button searchButton;
     private Button clearButton;
+
+    private String postal = "";
 
     private Handler handler;
     private AutoSuggestAdaptor autoSuggestAdaptor;
@@ -114,8 +122,10 @@ public class HomeFragment extends Fragment {
                 }
 
 //                start product results activity
+                JSONObject parameters = formRequestBody();
                 Intent intent = new Intent(getActivity(), ProductResultsActivity.class);
                 // TODO: pass the form data to the product results activity
+                intent.putExtra("parameters", parameters.toString());
                 startActivity(intent);
             }
         });
@@ -220,6 +230,11 @@ public class HomeFragment extends Fragment {
         inputKeyword = root.findViewById(R.id.input_keyword);
         inputDistance = root.findViewById(R.id.input_distance);
 //        inputZipcode = root.findViewById(R.id.input_zipcode);
+        conditionNewCheckbox = root.findViewById(R.id.condition_new_checkbox);
+        conditionUsedCheckbox = root.findViewById(R.id.condition_used_checkbox);
+        conditionUnspecifiedCheckbox = root.findViewById(R.id.condition_unspecified_checkbox);
+        localPickupCheckbox = root.findViewById(R.id.local_pickup_checkbox);
+        freeShippingCheckbox = root.findViewById(R.id.free_shipping_checkbox);
         enableNearbySearchCheckbox = root.findViewById(R.id.enableNearbySearchCheckbox);
         searchButton = root.findViewById(R.id.button_search);
         clearButton = root.findViewById(R.id.button_clear);
@@ -234,7 +249,7 @@ public class HomeFragment extends Fragment {
         inputKeywordLayout.setErrorIconDrawable(0);
         inputZipcodeLayout.setErrorIconDrawable(0);
 
-        Spinner spinner = (Spinner) root.findViewById(R.id.category_spinner);
+        spinner = (Spinner) root.findViewById(R.id.category_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -244,6 +259,7 @@ public class HomeFragment extends Fragment {
         // Specify the layout to use when the list of choices appears.
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
+
     }
 
     private void resetForm() {
@@ -254,6 +270,11 @@ public class HomeFragment extends Fragment {
         inputKeywordLayout.setError(null);
         inputZipcodeLayout.setError(null);
         nearbySearchSection.setVisibility(View.GONE);
+        conditionNewCheckbox.setChecked(false);
+        conditionUsedCheckbox.setChecked(false);
+        conditionUnspecifiedCheckbox.setChecked(false);
+        localPickupCheckbox.setChecked(false);
+        freeShippingCheckbox.setChecked(false);
         enableNearbySearchCheckbox.setChecked(false);
     }
 
@@ -302,4 +323,63 @@ public class HomeFragment extends Fragment {
 
         return isValidForm;
     }
+
+    private JSONObject formRequestBody() {
+        JSONObject parameters = new JSONObject();
+        try {
+            parameters.put("keyword", inputKeyword.getText().toString());
+            parameters.put("category", spinner.getSelectedItem().toString());
+            parameters.put("New", conditionNewCheckbox.isChecked() ? "true" : "false");
+            parameters.put("Used", conditionUsedCheckbox.isChecked() ? "true" : "false");
+            parameters.put("Unspecified", conditionUnspecifiedCheckbox.isChecked() ? "true" : "false");
+            parameters.put("conditions", getConditionsArray());
+            parameters.put("localPickup", localPickupCheckbox.isChecked() ? "true" : "false");
+            parameters.put("freeShipping", freeShippingCheckbox.isChecked() ? "true" : "false");
+            parameters.put("distance", inputDistance.getText().toString().equals("") ? "10000" : inputDistance.getText().toString());
+            parameters.put("locationOption", searchFromCurrentButton.isChecked() ? "other" : "zipcode");
+//            parameters.put("otherLocation", postal);
+            parameters.put("zipcode", autoCompleteTextView.getText().toString());
+            Log.d(TAG, "formRequestBody: " + parameters.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return parameters;
+    }
+
+    private JSONArray getConditionsArray() {
+        JSONArray conditions = new JSONArray();
+        if (conditionNewCheckbox.isChecked()) {
+            conditions.put("New");
+        }
+        if (conditionUsedCheckbox.isChecked()) {
+            conditions.put("Used");
+        }
+        if (conditionUnspecifiedCheckbox.isChecked()) {
+            conditions.put("Unspecified");
+        }
+        return conditions;
+    }
+
+//    private String getCurrentLocation() {
+////        make api call to get current location
+//        ApiCall.getCurrentLocation(requireContext(), new Response.Listener<JSONObject>() {
+//            @Override
+//            public void onResponse(JSONObject response) {
+//                Log.d(TAG, "onResponse: " + response.toString());
+//                try {
+//                    postal = response.get("postal").toString();
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                return;
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Log.d(TAG, "getCurrentLocation: " + error.toString());
+//            }
+//        });
+//        return postal;
+//    }
 }
