@@ -76,6 +76,7 @@ public class SplashActivity extends AppCompatActivity {
         Log.d(TAG, "addItemsInWishList: " + items.length());
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
+            String allInfo = item.toString();
             String itemId = item.getString("_id");
             String title = item.has("Title") ? item.getString("Title") : "unknown";
             String price = item.has("Price") ? item.getString("Price") : "unknown";
@@ -85,7 +86,7 @@ public class SplashActivity extends AppCompatActivity {
             String image = item.has("Image") ? item.getString("Image") : "";
             String url = item.has("Url") ? item.getString("Url") : "";
             Boolean isWishListed = true;
-            Product product = new Product(itemId, title, image, url, zip, shipping, price, condition, isWishListed);
+            Product product = new Product(itemId, title, image, url, zip, shipping, price, condition, isWishListed, allInfo);
             Log.d(TAG, "addItemsInWishList: " + product.toString());
             wishlistManager.addProductToWishlist(itemId, product);
         }

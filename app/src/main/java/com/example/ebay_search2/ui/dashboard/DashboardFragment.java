@@ -182,7 +182,7 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
 
     private void updateWishlistTotal() {
         wishlistTotalItems.setText("Wishlist total (" + wishlistManager.getWishlistSize() + " items):");
-        wishlistTotalPrice.setText("$" + wishlistManager.getTotalPrice());
+        wishlistTotalPrice.setText("$" + String.format("%.2f", wishlistManager.getTotalPrice()));
         if (wishlistManager.getWishlistSize() == 0) {
             wishlistTotalLayout.setVisibility(View.GONE);
             noItemsInWishlistTextView.setVisibility(View.VISIBLE);

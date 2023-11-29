@@ -22,6 +22,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 //import com.example.ebay_search2.ProductDetailActivity;
 import com.example.ebay_search2.ApiCall;
+import com.example.ebay_search2.ProductDetailActivity;
 import com.example.ebay_search2.ProductResultsActivity;
 import com.example.ebay_search2.R;
 import com.example.ebay_search2.ui.WishlistManager;
@@ -115,9 +116,9 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         wishlistManager = WishlistManager.getInstance();
 
         Log.d(TAG, "onClick: send http request");
-//        searchResults(searchParameters);
+        searchResults(searchParameters);
 
-        searchResultsExample();
+//        searchResultsExample();
         return rootView;
     }
 
@@ -154,7 +155,6 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         });
     }
 
-//    TODO: include parameters in the request
     private void searchResults(String searchParameters) {
         try {
             JSONObject jsonRequest = new JSONObject(searchParameters);
@@ -195,16 +195,10 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         }
     }
 
-    private JSONArray getItems(JSONObject resultJson) throws JSONException {
-        JSONArray items = resultJson
-                .getJSONArray("findItemsAdvancedResponse").getJSONObject(0)
-                .getJSONArray("searchResult").getJSONObject(0)
-                .getJSONArray("item");
-        return items;
-    }
     private void addItemIntoProductList(JSONArray items) throws JSONException {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
+            String allInfo = item.toString();
             String itemId = item.getString("itemId").toString();
             String title = item.getString("title").toString();
             String galleryURL = item.getString("galleryURL").toString();
@@ -215,7 +209,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
             String condition = item.getString("condition").toString();
             Boolean isWishListed = wishlistManager.isInWishlist(itemId);
             Product product = new Product(itemId, title, galleryURL, viewItemURL,
-                    postalCode, shippingCost, currentPrice, condition, isWishListed);
+                    postalCode, shippingCost, currentPrice, condition, isWishListed, allInfo);
             productsList.add(product);
         }
     }
@@ -225,16 +219,11 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         // Handle item click here based on the clicked item
         Log.d(TAG, "onItemClick: " + product.getTitle());
         // You can perform any action you need when an item is clicked
-//        Intent intent = new Intent(getActivity(), ProductDetailActivity.class);
-//        intent.putExtra("itemId", product.getItemId());
-//        intent.putExtra("title", product.getTitle());
-//        intent.putExtra("galleryURL", product.getGalleryURL());
-//        intent.putExtra("viewItemURL", product.getViewItemURL());
-//        intent.putExtra("postalCode", product.getPostalCode());
-//        intent.putExtra("shippingCost", product.getShippingCost());
-//        intent.putExtra("currentPrice", product.getCurrentPrice());
-//        intent.putExtra("condition", product.getCondition());
-//        startActivity(intent);
+        Intent intent = new Intent(getActivity(), ProductDetailActivity.class);
+//        intent.putExtra("details", "details");
+        intent.putExtra("allInfo", product.getAllInfo());
+//        intent.putExtra("googleImage", "googleImage");
+        startActivity(intent);
     }
 
     @Override

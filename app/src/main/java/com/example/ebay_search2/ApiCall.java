@@ -155,6 +155,7 @@ public class ApiCall {
     private static void getCurrentLocation(Context ctx, Response.Listener<JSONObject>
             listener, Response.ErrorListener errorListener) {
         String url = "https://ipinfo.io/json?token=" + IPINFOTOKEN;
+        Log.d(TAG, "getCurrentLocation: " + url);
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 listener, errorListener);
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);

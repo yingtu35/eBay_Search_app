@@ -64,7 +64,6 @@ public class WishlistManager {
     public int getWishlistSize() {
         return wishlistMap.size();
     }
-//    TODO: totalPrice should have fixed precision
     public double getTotalPrice() {
         return totalPrice;
     }
