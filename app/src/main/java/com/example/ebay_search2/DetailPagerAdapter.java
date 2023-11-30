@@ -18,12 +18,14 @@ import com.example.ebay_search2.ui.productDetails.ProductDetailTab;
 import com.example.ebay_search2.ui.productDetails.ShippingTab;
 import com.example.ebay_search2.ui.productDetails.SimilarProductsTab;
 
+import org.json.JSONObject;
+
 
 public class DetailPagerAdapter extends FragmentStateAdapter {
 
-    private String allInfo;
+    private JSONObject allInfo;
     private static final int NUM_PAGES = 4;
-    public DetailPagerAdapter(FragmentActivity fa, String allInfo) {
+    public DetailPagerAdapter(FragmentActivity fa, JSONObject allInfo) {
         super(fa);
         this.allInfo = allInfo;
 

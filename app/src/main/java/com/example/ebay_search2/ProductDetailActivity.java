@@ -13,29 +13,43 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.example.ebay_search2.DetailPagerAdapter;
 import com.example.ebay_search2.databinding.ActivityProductDetailBinding;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class ProductDetailActivity extends AppCompatActivity {
 
     private ActivityProductDetailBinding binding;
+    private View root;
+    private static String TAG = "ProductDetailActivity";
+    private TextView productTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         binding = ActivityProductDetailBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        root = binding.getRoot();
+        setContentView(root);
         
         Intent intent = getIntent();
 //        String details = intent.getStringExtra("details");
-        String allInfo = intent.getStringExtra("allInfo");
+        JSONObject allInfo = null;
+        try {
+            allInfo = new JSONObject(intent.getStringExtra("allInfo"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 //        String googleImage = intent.getStringExtra("googleImage");
 
         DetailPagerAdapter DetailPagerAdapter = new DetailPagerAdapter(this, allInfo);
@@ -77,5 +91,28 @@ public class ProductDetailActivity extends AppCompatActivity {
                     }
                 }
         ).attach();
+
+        // Set up back button click listener
+        ImageView backButton = root.findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+//        Set up page title
+        productTitle = root.findViewById(R.id.productTitle);
+        setPageTitle(allInfo);
+
+
+    }
+
+    private void setPageTitle(JSONObject allInfo) {
+        String title = allInfo.optString("title");
+        if (title.length() > 25) {
+            title = title.substring(0, 25) + " | ...";
+        }
+        productTitle.setText(title);
     }
 }

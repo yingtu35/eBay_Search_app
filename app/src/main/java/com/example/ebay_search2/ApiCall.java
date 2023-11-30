@@ -6,12 +6,14 @@ import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
@@ -120,7 +122,36 @@ public class ApiCall {
                                 listener, errorListener);
                         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
                     }
-                }, errorListener);
+                }, new Response.ErrorListener() {
+//                    TODO: give fake postal code if location is not available
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "getCurrentLocation: " + error.getMessage());
+                        try {
+                            jsonRequest.put("otherLocation", "90009");
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
+                                + "&category=" + jsonRequest.optString("category")
+                                + "&New=" + jsonRequest.optString("New")
+                                + "&Used=" + jsonRequest.optString("Used")
+                                + "&Unspecified=" + jsonRequest.optString("Unspecified")
+                                + "&conditions=" + jsonRequest.optString("conditions")
+                                + "&localPickup=" + jsonRequest.optString("localPickup")
+                                + "&freeShipping=" + jsonRequest.optString("freeShipping")
+                                + "&distance=" + jsonRequest.optString("distance")
+                                + "&locationOption=" + jsonRequest.optString("locationOption")
+                                + "&otherLocation=" + jsonRequest.optString("otherLocation");
+                        if (jsonRequest.optString("locationOption").equals("zip")) {
+                            url += "&zip=" + jsonRequest.optString("zip");
+                        }
+                        Log.d(TAG, "getSearchResults: " + url);
+                        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                                listener, errorListener);
+                        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+                    }
+                });
                 return;
             }
         } catch (Exception e) {
@@ -147,6 +178,30 @@ public class ApiCall {
     public static void getSearchResultsExample(Context ctx, Response.Listener<JSONArray>
             listener, Response.ErrorListener errorListener) {
         String url = URL + "/search-ebay-example";
+        JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                listener, errorListener);
+        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    public static void getSingleItem(Context ctx, String itemId, Response.Listener<JSONObject>
+            listener, Response.ErrorListener errorListener) {
+        String url = URL + "/get-single-item/" + itemId;
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                listener, errorListener);
+        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    public static void getSingleItemPhotos(Context ctx, String title, Response.Listener<JSONObject>
+            listener, Response.ErrorListener errorListener) {
+        String url = URL + "/search-google" + "?keyword=" + title;
+        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                listener, errorListener);
+        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    public static void getSimilarProducts(Context ctx, String itemId, Response.Listener<JSONArray>
+            listener, Response.ErrorListener errorListener) {
+        String url = URL + "/search-similar" + "?itemId=" + itemId;
         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                 listener, errorListener);
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);

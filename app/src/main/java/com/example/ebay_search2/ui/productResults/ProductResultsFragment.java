@@ -244,6 +244,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         JSONObject requestBody = new JSONObject();
         try {
             requestBody.put("_id", product.getItemId());
+            requestBody.put("itemId", product.getItemId());
             requestBody.put("Title", product.getTitle());
             requestBody.put("Price", product.getCurrentPrice());
             requestBody.put("Shipping", product.getShippingCost());
@@ -251,6 +252,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
             requestBody.put("Condition", product.getCondition());
             requestBody.put("Image", product.getGalleryURL());
             requestBody.put("Url", product.getViewItemURL());
+            requestBody.put("allInfo", product.getAllInfo());
             // Add more key-value pairs as needed
         } catch (JSONException e) {
             e.printStackTrace();

@@ -4,11 +4,17 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.example.ebay_search2.ApiCall;
 import com.example.ebay_search2.R;
+
+import org.json.JSONObject;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,17 +27,18 @@ public class ImagesTab extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "ImagesTab";
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private String allInfo;
+    private JSONObject allInfo;
 
     public ImagesTab() {
         // Required empty public constructor
     }
 
-    public ImagesTab(String allInfo) {
+    public ImagesTab(JSONObject allInfo) {
         this.allInfo = allInfo;
     }
 
@@ -66,6 +73,26 @@ public class ImagesTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_images_tab, container, false);
+        View rootView =
+                inflater.inflate(R.layout.fragment_images_tab, container, false);
+        rootView.setTag(TAG);
+
+        getPhotos();
+
+        return rootView;
+    }
+
+    private void getPhotos() {
+        ApiCall.getSingleItemPhotos(getContext(), allInfo.optString("title"), new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d(TAG, "onResponse: " + response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "getDetails: " + error.getMessage());
+            }
+        });
     }
 }

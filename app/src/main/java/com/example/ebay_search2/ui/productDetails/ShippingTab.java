@@ -10,6 +10,8 @@ import android.view.ViewGroup;
 
 import com.example.ebay_search2.R;
 
+import org.json.JSONObject;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link ShippingTab#newInstance} factory method to
@@ -25,13 +27,13 @@ public class ShippingTab extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private String allInfo;
+    private JSONObject allInfo;
 
     public ShippingTab() {
         // Required empty public constructor
     }
 
-    public ShippingTab(String allInfo) {
+    public ShippingTab(JSONObject allInfo) {
         this.allInfo = allInfo;
     }
 

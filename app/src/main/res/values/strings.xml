@@ -18,6 +18,16 @@
         <item>Music</item>
         <item>Video, Games and Consoles</item>
     </string-array>
+    <string-array name="sorting_categories">
+        <item>Default</item>
+        <item>Name</item>
+        <item>Price</item>
+        <item>Days</item>
+    </string-array>
+    <string-array name="sorting_directions">
+        <item>Ascending</item>
+        <item>Descending</item>
+    </string-array>
 
     <!--    <string name="hello_blank_fragment">Hello blank fragment</string>-->
     <string name="title_activity_product_detail">ProductDetailActivity</string>

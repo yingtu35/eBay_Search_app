@@ -1,5 +1,6 @@
 package com.example.ebay_search2.ui.dashboard;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.ebay_search2.ApiCall;
+import com.example.ebay_search2.ProductDetailActivity;
 import com.example.ebay_search2.R;
 import com.example.ebay_search2.ui.ProductAdaptor;
 import com.example.ebay_search2.ui.WishlistManager;
@@ -178,6 +180,11 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
         // Handle item click here based on the clicked item
         Log.d(TAG, "onItemClick: " + wishListItem.getTitle());
         // You can perform any action you need when an item is clicked
+        Intent intent = new Intent(getActivity(), ProductDetailActivity.class);
+//        intent.putExtra("details", "details");
+        intent.putExtra("allInfo", wishListItem.getAllInfo());
+//        intent.putExtra("googleImage", "googleImage");
+        startActivity(intent);
     }
 
     private void updateWishlistTotal() {

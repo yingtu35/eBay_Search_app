@@ -76,7 +76,7 @@ public class SplashActivity extends AppCompatActivity {
         Log.d(TAG, "addItemsInWishList: " + items.length());
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
-            String allInfo = item.toString();
+            String allInfo = item.getString("allInfo");
             String itemId = item.getString("_id");
             String title = item.has("Title") ? item.getString("Title") : "unknown";
             String price = item.has("Price") ? item.getString("Price") : "unknown";
