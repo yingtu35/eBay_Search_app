@@ -4,17 +4,26 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.example.ebay_search2.ApiCall;
 import com.example.ebay_search2.R;
+import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -33,6 +42,10 @@ public class ImagesTab extends Fragment {
     private String mParam1;
     private String mParam2;
     private JSONObject allInfo;
+    private LinearLayout progressBarLayout;
+    private ScrollView imagesScrollView;
+    private LinearLayout imagesContainer;
+    private int screenWidth;
 
     public ImagesTab() {
         // Required empty public constructor
@@ -77,6 +90,15 @@ public class ImagesTab extends Fragment {
                 inflater.inflate(R.layout.fragment_images_tab, container, false);
         rootView.setTag(TAG);
 
+        progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
+        imagesScrollView = rootView.findViewById(R.id.imagesScrollView);
+        imagesContainer = rootView.findViewById(R.id.imagesContainer);
+
+        //        get width and height of the screen
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        screenWidth = displayMetrics.widthPixels;
+
         getPhotos();
 
         return rootView;
@@ -87,6 +109,9 @@ public class ImagesTab extends Fragment {
             @Override
             public void onResponse(JSONObject response) {
                 Log.d(TAG, "onResponse: " + response.toString());
+                updatePhotos(response);
+                progressBarLayout.setVisibility(View.GONE);
+                imagesScrollView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -94,5 +119,24 @@ public class ImagesTab extends Fragment {
                 Log.d(TAG, "getDetails: " + error.getMessage());
             }
         });
+    }
+
+    private void updatePhotos(JSONObject response) {
+        JSONArray thumbnailLinks = response.optJSONArray("thumbnailLinks");
+        for (int i = 0; i < thumbnailLinks.length(); i++) {
+            String link = thumbnailLinks.optString(i) + ".jpg";
+            Log.d(TAG, "updatePhotos: " + link);
+            ImageView imageView = new ImageView(getContext());
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+                    screenWidth,
+                    screenWidth);
+            layoutParams.setMargins(0, 0, 0, 20);
+            imageView.setLayoutParams(layoutParams);
+            imageView.setBackground(getResources().getDrawable(R.drawable.image_border));
+            imageView.setElevation(10);
+
+            Picasso.with(getContext()).load(link).centerInside().fit().into(imageView);
+            imagesContainer.addView(imageView);
+        }
     }
 }

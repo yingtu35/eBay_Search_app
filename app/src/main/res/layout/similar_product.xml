@@ -24,7 +24,7 @@
                 android:layout_weight="1"
                 android:layout_height="200dp"
                 android:scaleType="centerInside"
-                android:layout_margin="10dp"/>
+                android:layout_marginHorizontal="10dp"/>
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"

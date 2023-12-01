@@ -13,6 +13,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -51,6 +53,8 @@ public class ProductDetailTab extends Fragment {
     private TextView productSubtitle;
     private TextView productPrice;
     private TextView productBrand;
+    private LinearLayout progressBarLayout;
+    private ScrollView scrollView;
     private int screenWidth;
     private String title;
     private String price;
@@ -102,6 +106,8 @@ public class ProductDetailTab extends Fragment {
                 inflater.inflate(R.layout.fragment_product_detail_tab, container, false);
         rootView.setTag(TAG);
 
+        progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
+        scrollView = rootView.findViewById(R.id.productDetailScrollView);
         imageContainer = rootView.findViewById(R.id.imageContainer);
         specificationsContainer = rootView.findViewById(R.id.specificationsContainer);
         productTitle = rootView.findViewById(R.id.productTitle);
@@ -126,6 +132,8 @@ public class ProductDetailTab extends Fragment {
             public void onResponse(JSONObject response) {
                 Log.d(TAG, response.toString());
                 updateDetails(response);
+                progressBarLayout.setVisibility(View.GONE);
+                scrollView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override

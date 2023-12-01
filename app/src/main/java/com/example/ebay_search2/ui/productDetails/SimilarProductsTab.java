@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import com.android.volley.Response;
@@ -46,10 +48,11 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
     private static final String TAG = "SimilarProductsTab";
     private Spinner sortingCategorySpinner;
     private Spinner sortingDirectionSpinner;
-    private List<SimilarProduct> similarProductList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private SimilarProductsAdapter similarProductsAdapter;
     private RecyclerView similarProductsRecyclerView;
+    private LinearLayout progressBarLayout;
+    private LinearLayout similarProductsLayout;
 
     public SimilarProductsTab() {
         // Required empty public constructor
@@ -94,9 +97,12 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
                 inflater.inflate(R.layout.fragment_similar_products_tab, container, false);
         rootView.setTag(TAG);
 
+        progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
+        similarProductsLayout = rootView.findViewById(R.id.similarProductsLayout);
         similarProductsRecyclerView = (RecyclerView) rootView.findViewById(R.id.similarProductsRecyclerView);
-
         sortingCategorySpinner = (Spinner) rootView.findViewById(R.id.sorting_category_spinner);
+        sortingDirectionSpinner = (Spinner) rootView.findViewById(R.id.sorting_direction_spinner);
+
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> sortingCategoryAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -107,7 +113,6 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
         sortingCategoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortingCategorySpinner.setAdapter(sortingCategoryAdapter);
 
-        sortingDirectionSpinner = (Spinner) rootView.findViewById(R.id.sorting_direction_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> sortingDirectionsAdapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -117,6 +122,29 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
         // Specify the layout to use when the list of choices appears.
         sortingDirectionsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortingDirectionSpinner.setAdapter(sortingDirectionsAdapter);
+
+//        set spinner listeners
+        sortingCategorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String sortingCategory = adapterView.getItemAtPosition(i).toString();
+                similarProductsAdapter.setSortingCategory(sortingCategory);
+                Log.d(TAG, "onItemSelected: " + sortingCategory);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
+
+        sortingDirectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String sortingDirection = adapterView.getItemAtPosition(i).toString();
+                similarProductsAdapter.setSortingDirection(sortingDirection);
+                Log.d(TAG, "onItemSelected: " + sortingDirection);
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {}
+        });
 
         getSimilarProducts();
 //        TODO: add sorting functionality
@@ -128,12 +156,14 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
             @Override
             public void onResponse(JSONArray response) {
                 Log.d(TAG, "onResponse: " + response.toString());
-                addSimilarProducts(response);
+                List<SimilarProduct> similarProductList = addSimilarProducts(response);
 
                 linearLayoutManager = new LinearLayoutManager(getContext());
                 similarProductsAdapter = new SimilarProductsAdapter(similarProductList, SimilarProductsTab.this);
                 similarProductsRecyclerView.setLayoutManager(linearLayoutManager);
                 similarProductsRecyclerView.setAdapter(similarProductsAdapter);
+                progressBarLayout.setVisibility(View.GONE);
+                similarProductsLayout.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -143,7 +173,8 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
         });
     }
 
-    private void addSimilarProducts(JSONArray response) {
+    private List<SimilarProduct> addSimilarProducts(JSONArray response) {
+        List<SimilarProduct> similarProductList = new ArrayList<>();
         for (int i = 0; i < response.length(); i++) {
             JSONObject product = response.optJSONObject(i);
             Log.d(TAG, "addSimilarProducts: " + product.toString());
@@ -156,6 +187,7 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
             SimilarProduct similarProduct = new SimilarProduct(title, productImage, shippingCost, daysLeft, price, itemURL);
             similarProductList.add(similarProduct);
         }
+        return similarProductList;
     }
 
     @Override
