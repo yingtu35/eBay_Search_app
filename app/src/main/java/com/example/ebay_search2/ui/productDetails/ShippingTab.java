@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.example.ebay_search2.R;
@@ -39,7 +41,7 @@ public class ShippingTab extends Fragment {
     private static String TAG = "ShippingTab";
     private JSONObject allInfo;
     private LinearLayout progressBarLayout;
-    private LinearLayout shippingDetailsLayout;
+    private ScrollView shippingDetailsScrollView;
     private TextView storeName;
     private TextView feedbackScore;
     private TextView popularity;
@@ -57,6 +59,9 @@ public class ShippingTab extends Fragment {
     private String refundMode;
     private String shippedBy;
     private ProgressBar circularScore;
+
+    private Handler handler;
+    private Runnable runnable;
 
 //    private String storeName;
 //    private String feedbackScore;
@@ -101,6 +106,31 @@ public class ShippingTab extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
+        // Initialize the handler
+        handler = new Handler();
+
+        // Initialize the runnable
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                // Code to be executed periodically
+                if (shippingDetailsScrollView.getVisibility() == View.VISIBLE) {
+                    handler.removeCallbacks(runnable);
+                    return;
+                }
+
+                if (getReturnPolicy()) {
+                    progressBarLayout.setVisibility(View.GONE);
+                    shippingDetailsScrollView.setVisibility(View.VISIBLE);
+                }
+
+                // Call the same runnable again after a delay
+                handler.postDelayed(this, 500);
+            }
+        };
+
+        // Start the initial runnable with a delay
+        handler.postDelayed(runnable, 0);
     }
 
     @Override
@@ -152,7 +182,7 @@ public class ShippingTab extends Fragment {
         shippedByView = rootView.findViewById(R.id.shippedBy);
 
         progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
-        shippingDetailsLayout = rootView.findViewById(R.id.shippingDetailsLayout);
+        shippingDetailsScrollView = rootView.findViewById(R.id.shippingDetailsScrollView);
     }
 
     private void updateShipping(JSONObject allInfo) {
@@ -237,20 +267,6 @@ public class ShippingTab extends Fragment {
             feedbackRatingStar.setImageResource(R.drawable.star_circle_outline);
         }
         feedbackRatingStar.setColorFilter(tintColor);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        Log.d(TAG, "onResume: called");
-        if (shippingDetailsLayout.getVisibility() == View.VISIBLE) {
-            return;
-        }
-
-        if (getReturnPolicy()) {
-            progressBarLayout.setVisibility(View.GONE);
-            shippingDetailsLayout.setVisibility(View.VISIBLE);
-        }
     }
 
     private boolean getReturnPolicy() {

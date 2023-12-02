@@ -29,400 +29,410 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/shippingDetailsLayout"
+    <ScrollView
+        android:id="@+id/shippingDetailsScrollView"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:paddingBottom="5dp"
         android:visibility="gone">
         <LinearLayout
-            android:id="@+id/soldByLayout"
+            android:id="@+id/shippingDetailsLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginHorizontal="10dp"
             android:orientation="vertical">
             <LinearLayout
+                android:id="@+id/soldByLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/truck"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="5dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Sold By"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="24dp"/>
-            </LinearLayout>
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
-
-                <TableRow
-                    android:id="@+id/storeNameRow"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="10dp"
+                android:orientation="vertical">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/truck"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="5dp"/>
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Store Name"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/storeName"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="store name"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/feedbackScoreRow"
+                        android:text="Sold By"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="24dp"/>
+                </LinearLayout>
+                <TableLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Feedback Score"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
+                    android:layout_marginStart="10dp">
 
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/feedbackScore"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="10000"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/popularityRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Popularity"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <RelativeLayout
+                    <TableRow
+                        android:id="@+id/storeNameRow"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:paddingHorizontal="40dp">
-
-                        <ProgressBar
-                            android:id="@+id/circularScore"
-                            style="?android:attr/progressBarStyleHorizontal"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:background="@drawable/circular_shape"
-                            android:indeterminate="false"
-                            android:progressDrawable="@drawable/circular_progress_bar"
-                            android:textAlignment="center"
-                            android:progress="100"/>
-
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
                         <TextView
-                            android:id="@+id/popularity"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignLeft="@+id/circularScore"
-                            android:layout_alignTop="@+id/circularScore"
-                            android:layout_alignRight="@+id/circularScore"
-                            android:layout_alignBottom="@+id/circularScore"
-                            android:layout_centerInParent="true"
-                            android:background="@android:color/transparent"
-                            android:paddingStart="5dp"
-                            android:paddingTop="8dp"
-                            android:text="9%"
-                            android:textSize="9dp" />
-                    </RelativeLayout>
+                            android:text="Store Name"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
 
-                </TableRow>
-                <TableRow
-                    android:id="@+id/feedbackStarRow"
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/storeName"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="store name"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/feedbackScoreRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Feedback Score"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/feedbackScore"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="10000"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/popularityRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Popularity"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingHorizontal="40dp">
+
+                            <ProgressBar
+                                android:id="@+id/circularScore"
+                                style="?android:attr/progressBarStyleHorizontal"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:background="@drawable/circular_shape"
+                                android:indeterminate="false"
+                                android:progressDrawable="@drawable/circular_progress_bar"
+                                android:textAlignment="center"
+                                android:progress="100"/>
+
+                            <TextView
+                                android:id="@+id/popularity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignLeft="@+id/circularScore"
+                                android:layout_alignTop="@+id/circularScore"
+                                android:layout_alignRight="@+id/circularScore"
+                                android:layout_alignBottom="@+id/circularScore"
+                                android:layout_centerInParent="true"
+                                android:background="@android:color/transparent"
+                                android:paddingStart="5dp"
+                                android:paddingTop="8dp"
+                                android:text="9%"
+                                android:textSize="9dp" />
+                        </RelativeLayout>
+
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/feedbackStarRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Feedback Star"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <ImageView
+                            android:id="@+id/feedbackStar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start"
+                            android:paddingHorizontal="40dp"
+                            android:src="@drawable/star_circle"
+                            app:tint="@color/purple_500" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="15dp"
+                            android:background="@color/grey" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="15dp"
+                android:layout_height="2dp"
+                android:background="@color/grey"/>
+
+            <LinearLayout
+                android:id="@+id/ShippingInfoLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="10dp"
+                android:orientation="vertical">
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Feedback Star"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
+                    android:orientation="horizontal">
                     <ImageView
-                        android:id="@+id/feedbackStar"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="start"
-                        android:paddingHorizontal="40dp"
-                        android:src="@drawable/star_circle"
-                        app:tint="@color/purple_500" />
-
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ferry"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="5dp"/>
                     <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shipping Info"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="24dp"/>
+                </LinearLayout>
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp">
+
+                    <TableRow
+                        android:id="@+id/shippingCostRow"
                         android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
-                </TableRow>
-            </TableLayout>
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_marginTop="15dp"
-            android:layout_height="2dp"
-            android:background="@color/grey"/>
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shipping Cost"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
 
-        <LinearLayout
-            android:id="@+id/ShippingInfoLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginHorizontal="10dp"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ferry"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="5dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Shipping Info"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="24dp"/>
-            </LinearLayout>
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
-
-                <TableRow
-                    android:id="@+id/shippingCostRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Shipping Cost"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/shippingCost"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Free"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/globalShippingRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Global Shipping"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/globalShipping"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="No"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/handlingTimeRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Handling Time"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/handlingTime"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-            </TableLayout>
-        </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_marginTop="15dp"
-            android:layout_height="2dp"
-            android:background="@color/grey"/>
-
-        <LinearLayout
-            android:id="@+id/returnPolicyLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp"
-            android:layout_marginHorizontal="10dp"
-            android:orientation="vertical">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/dump_truck"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginEnd="5dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Return Policy"
-                    android:textColor="@color/black"
-                    android:textStyle="bold"
-                    android:textSize="24dp"/>
-            </LinearLayout>
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp">
-
-                <TableRow
-                    android:id="@+id/policyRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Policy"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/policy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Returns Accepted"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/returnsWithinRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Returns Within"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/returnsWithin"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="30 Days"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/refundModeRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Refund Mode"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/refundMode"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Money back or replacement"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-                </TableRow>
-                <TableRow
-                    android:id="@+id/shippedByRow"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginVertical="5dp">
-                    <!-- Column 1 -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Shipped By"
-                        android:textSize="18dp"
-                        android:textColor="@color/black"/>
-
-                    <!-- Column 2 -->
-                    <TextView
-                        android:id="@+id/shippedBy"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Seller"
-                        android:textSize="18dp"
-                        android:paddingHorizontal="40dp"/>
-
-                    <TextView
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/shippingCost"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Free"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/globalShippingRow"
                         android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:layout_marginTop="15dp"
-                        android:background="@color/grey" />
-                </TableRow>
-            </TableLayout>
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Global Shipping"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/globalShipping"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="No"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/handlingTimeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Handling Time"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/handlingTime"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_marginTop="15dp"
+                android:layout_height="2dp"
+                android:background="@color/grey"/>
+
+            <LinearLayout
+                android:id="@+id/returnPolicyLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:layout_marginHorizontal="10dp"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/dump_truck"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="5dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Return Policy"
+                        android:textColor="@color/black"
+                        android:textStyle="bold"
+                        android:textSize="24dp"/>
+                </LinearLayout>
+                <TableLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp">
+
+                    <TableRow
+                        android:id="@+id/policyRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Policy"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/policy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Returns Accepted"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/returnsWithinRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Returns Within"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/returnsWithin"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="30 Days"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/refundModeRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Refund Mode"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/refundMode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Money back or replacement"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+                    </TableRow>
+                    <TableRow
+                        android:id="@+id/shippedByRow"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="5dp">
+                        <!-- Column 1 -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Shipped By"
+                            android:textSize="18dp"
+                            android:textColor="@color/black"/>
+
+                        <!-- Column 2 -->
+                        <TextView
+                            android:id="@+id/shippedBy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Seller"
+                            android:textSize="18dp"
+                            android:paddingHorizontal="40dp"/>
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="2dp"
+                            android:layout_marginTop="15dp"
+                            android:background="@color/grey" />
+                    </TableRow>
+                </TableLayout>
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
+
+
 
 </FrameLayout>
