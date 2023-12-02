@@ -134,6 +134,13 @@ public class ShippingTab extends Fragment {
     }
 
     @Override
+    public void onDestroy() {
+        // Remove the callbacks to prevent memory leaks
+        handler.removeCallbacks(runnable);
+        super.onDestroy();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 //        TODO: Hide a section if data is not available

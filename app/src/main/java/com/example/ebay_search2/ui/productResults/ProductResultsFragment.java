@@ -112,7 +112,6 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         recyclerView = (RecyclerView) rootView.findViewById(R.id.productResultsRecyclerView);
         noProductsFoundTextView = (TextView) rootView.findViewById(R.id.noProductsFoundTextView);
 
-//        TODO: get the form data from the ProductResultsActivity (uncomment the following line)
         ProductResultsActivity activity = (ProductResultsActivity) getActivity();
 
         searchParameters = activity.getIntent().getExtras().getString("parameters");
@@ -216,6 +215,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
 
     @Override
     public void onProductClick(Product product) {
+//        TODO: how to update wishlist icon after returning from the product detail page
         // Handle item click here based on the clicked item
         Log.d(TAG, "onItemClick: " + product.getTitle());
         // You can perform any action you need when an item is clicked
