@@ -1,7 +1,9 @@
 package com.example.ebay_search2.ui.productDetails;
 
+import android.content.Context;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.util.DisplayMetrics;
@@ -36,6 +38,13 @@ import java.util.List;
  * create an instance of this fragment.
  */
 public class ProductDetailTab extends Fragment {
+
+    // Define an interface
+    public interface OnDataPassListener {
+        void onDataPass(JSONObject data); // You can change the type of data as needed
+    }
+
+    private OnDataPassListener dataPassListener;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -90,6 +99,18 @@ public class ProductDetailTab extends Fragment {
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+
+        // Ensure that the hosting activity implements the interface
+        try {
+            dataPassListener = (OnDataPassListener) context;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(context.toString() + " must implement OnDataPassListener");
+        }
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
@@ -102,6 +123,8 @@ public class ProductDetailTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+//        TODO: Hide a section if data is not available
+//        TODO: Display no results if all data is not available
         View rootView =
                 inflater.inflate(R.layout.fragment_product_detail_tab, container, false);
         rootView.setTag(TAG);
@@ -125,6 +148,8 @@ public class ProductDetailTab extends Fragment {
         return rootView;
     }
 
+
+
     private void getDetails() {
         Log.d(TAG, "getDetails: " + allInfo.optString("itemId"));
         ApiCall.getSingleItem(getContext(), allInfo.optString("itemId"), new Response.Listener<JSONObject>() {
@@ -143,7 +168,9 @@ public class ProductDetailTab extends Fragment {
         });
     }
 
+
     private void updateDetails(JSONObject response) {
+        sendReturnPolicyToActivity(response);
         productImages = response.optJSONArray("productImages");
         itemSpecifics = response.optJSONArray("ItemSpecifics");
         Log.d(TAG, "updateDetails: " + productImages.toString());
@@ -154,6 +181,20 @@ public class ProductDetailTab extends Fragment {
         updateProductImages();
         updateItemSpecifics();
     }
+
+//    private void updateShipping(JSONObject response) {
+//        Log.d(TAG, "updateShipping: called");
+//        JSONObject returnPolicy = response.optJSONObject("returnPolicy");
+//        ShippingTab fragmentB = (ShippingTab) getChildFragmentManager().findFragmentById(R.id.fragment_shipping_tab);
+//
+//        if (fragmentB != null) {
+//            fragmentB.updateReturnPolicy(returnPolicy);
+//            fragmentB.updateVisibility();
+//        } else {
+//            Log.d(TAG, "updateShipping: fragmentB is null");
+//
+//        }
+//    }
 
     private void updateProductSubtitle() {
         String subtitle = "";
@@ -202,5 +243,17 @@ public class ProductDetailTab extends Fragment {
             specificationsContainer.addView(textView);
         }
 
+    }
+
+    private void sendReturnPolicyToActivity(JSONObject response) {
+        JSONObject returnPolicy = response.optJSONObject("returnPolicy");
+        passReturnPolicyToActivity(returnPolicy);
+    }
+    // Method to pass data to the activity
+    private void passReturnPolicyToActivity(JSONObject returnPolicy) {
+        Log.d(TAG, "passReturnPolicyToActivity: " + returnPolicy.toString());
+        if (dataPassListener != null && returnPolicy != null) {
+            dataPassListener.onDataPass(returnPolicy);
+        }
     }
 }

@@ -5,6 +5,7 @@
     <string name="title_home">Product Search</string>
     <string name="title_search_result">Search Results</string>
     <string name="error_mandatory_field">Please enter mandatory field</string>
+    <string name="zip_code_placeholder">zipcode</string>
 
     <string name="home_text">Hello</string>
     <string-array name="category_array">

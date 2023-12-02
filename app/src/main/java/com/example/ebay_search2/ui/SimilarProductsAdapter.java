@@ -145,7 +145,6 @@ public class SimilarProductsAdapter extends RecyclerView.Adapter<SimilarProducts
         }
     }
 
-    //    TODO: Add sorting functionality
     class SimilarProductComparator implements Comparator<SimilarProduct> {
         @Override
         public int compare(SimilarProduct o1, SimilarProduct o2) {

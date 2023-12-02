@@ -9,5 +9,12 @@
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#FF949494</color>
     <color name="orange">#FFF4511E</color>
+    <color name="green">#FF1DB954</color>
+    <color name="red">#FFd42b2b</color>
+    <color name="yellow">#FFFFFF00</color>
+    <color name="blue">#FF1E90FF</color>
+    <color name="silver">#FFC0C0C0</color>
+    <color name="turquoise">#FF40E0D0</color>
     <color name="error_text">#FFd42b2b</color>
+
 </resources>

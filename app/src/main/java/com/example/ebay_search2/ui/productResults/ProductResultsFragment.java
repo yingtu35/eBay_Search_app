@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -33,6 +34,7 @@ import com.example.ebay_search2.ui.ProductAdaptor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +52,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
     private static final String ARG_PARAM2 = "param2";
 
     private static final int SPAN_COUNT = 2;
+    private static final int maxTitleLength = 10;
 
     private static String TAG = "ProductResultsFragment";
 //    private String result;
@@ -63,6 +66,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
 
     private WishlistManager wishlistManager;
     private LinearLayout progressBarLayout;
+    private TextView noProductsFoundTextView;
     private String searchParameters;
 
     public ProductResultsFragment() {
@@ -99,12 +103,14 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+//        TODO: Display "N/A" if any data is not available
         View rootView =
                 inflater.inflate(R.layout.fragment_product_results, container, false);
         rootView.setTag(TAG);
 
         progressBarLayout = (LinearLayout) rootView.findViewById(R.id.progressBarLayout);
         recyclerView = (RecyclerView) rootView.findViewById(R.id.productResultsRecyclerView);
+        noProductsFoundTextView = (TextView) rootView.findViewById(R.id.noProductsFoundTextView);
 
 //        TODO: get the form data from the ProductResultsActivity (uncomment the following line)
         ProductResultsActivity activity = (ProductResultsActivity) getActivity();
@@ -126,25 +132,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         ApiCall.getSearchResultsExample(requireContext(), new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
-                // Display the first 500 characters of the response string.
-                Log.d(TAG, response.toString());
-                Log.d(TAG, "onResponse: "+response.length());
-//            Log.d(TAG, "onCreateView: "+result);
-                if (response.length() != 0) {
-                    try {
-                        addItemIntoProductList(response);
-                        Log.d(TAG, "productsList: " + productsList);
-//                          Create adapter and set it to the RecyclerView
-                        mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-                        productAdaptor = new ProductAdaptor(productsList, ProductResultsFragment.this, ProductResultsFragment.this);
-                        recyclerView.setLayoutManager(mLayoutManager);
-                        recyclerView.setAdapter(productAdaptor);
-                        Log.d(TAG, "onCreateView: " + productAdaptor.getItemCount());
-                        progressBarLayout.setVisibility(View.GONE);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
+                displaySearchResults(response);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -164,24 +152,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
                 @Override
                 public void onResponse(JSONArray response) {
                     // Display the first 500 characters of the response string.
-                    Log.d(TAG, response.toString());
-                    Log.d(TAG, "onResponse: "+response.length());
-//            Log.d(TAG, "onCreateView: "+result);
-                    if (response.length() != 0) {
-                        try {
-                            addItemIntoProductList(response);
-                            Log.d(TAG, "productsList: " + productsList);
-//                          Create adapter and set it to the RecyclerView
-                            mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
-                            productAdaptor = new ProductAdaptor(productsList, ProductResultsFragment.this, ProductResultsFragment.this);
-                            recyclerView.setLayoutManager(mLayoutManager);
-                            recyclerView.setAdapter(productAdaptor);
-                            Log.d(TAG, "onCreateView: " + productAdaptor.getItemCount());
-                            progressBarLayout.setVisibility(View.GONE);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
+                    displaySearchResults(response);
                 }
             }, new Response.ErrorListener() {
                 @Override
@@ -193,6 +164,32 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void displaySearchResults(JSONArray response) {
+        Log.d(TAG, response.toString());
+        Log.d(TAG, "onResponse: "+response.length());
+
+        if (response.length() != 0) {
+            try {
+                addItemIntoProductList(response);
+                Log.d(TAG, "productsList: " + productsList);
+//                          Create adapter and set it to the RecyclerView
+                mLayoutManager = new GridLayoutManager(getActivity(), SPAN_COUNT);
+                productAdaptor = new ProductAdaptor(productsList, ProductResultsFragment.this, ProductResultsFragment.this);
+                recyclerView.setLayoutManager(mLayoutManager);
+                recyclerView.setAdapter(productAdaptor);
+                Log.d(TAG, "onCreateView: " + productAdaptor.getItemCount());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            Log.d(TAG, "onResponse: no results");
+            noProductsFoundTextView.setVisibility(View.VISIBLE);
+
+        }
+        progressBarLayout.setVisibility(View.GONE);
     }
 
     private void addItemIntoProductList(JSONArray items) throws JSONException {
@@ -207,6 +204,9 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
             String shippingCost = item.getJSONObject("shippingInfo").getString("shippingCost").toString();
             String currentPrice = item.getString("currentPrice").toString();
             String condition = item.getString("condition").toString();
+            if (condition.endsWith(" - Refurbished")) {
+                condition = condition.substring(0, condition.length() - 14);
+            }
             Boolean isWishListed = wishlistManager.isInWishlist(itemId);
             Product product = new Product(itemId, title, galleryURL, viewItemURL,
                     postalCode, shippingCost, currentPrice, condition, isWishListed, allInfo);
@@ -231,7 +231,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
         // Handle the button click here based on the clicked item
         Log.d(TAG, "onButtonClick: " + product.getTitle());
 //        check if we are to add the product into the wish list or delete it from the wish list
-        if (product.getIsWishListed()) {
+        if (wishlistManager.isInWishlist(product.getItemId())) {
             deleteFromWishlist(product);
         }
         else {
@@ -261,12 +261,15 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
     }
 
     private void deleteFromWishlist(Product product) {
+        String title = product.getTitle();
+        Log.d(TAG, "onButtonClick: " + title);
+        String shrunkTitle = title.length() > maxTitleLength ? title.substring(0, maxTitleLength) + "..." : title;
         ApiCall.deleteFromWishlist(requireContext(), product.getItemId(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 // Handle the response
                 Log.d(TAG, "product removed into wishlist: " + response.toString());
-                String message = product.getTitle() + " was removed from the wish list";
+                String message = shrunkTitle + " removed from wishlist";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                 wishlistManager.removeProductFromWishlist(product.getItemId());
 //                      update the isWishListed field of the product
@@ -278,19 +281,22 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "product failed to add into wishlist: " + error.toString());
-                String message = product.getTitle() + " failed to remove from wish list";
+                String message = shrunkTitle + " failed to remove from wishlist";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void addIntoWishList(Product product, JSONObject requestBody) {
+        String title = product.getTitle();
+        Log.d(TAG, "onButtonClick: " + title);
+        String shrunkTitle = title.length() > maxTitleLength ? title.substring(0, maxTitleLength) + "..." : title;
         ApiCall.postWishlist(requireContext(), requestBody, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         // Handle the response
                         Log.d(TAG, "product added into wishlist: " + response.toString());
-                        String message = product.getTitle() + " was added to the wish list";
+                        String message = shrunkTitle + " added to the wishlist";
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                         wishlistManager.addProductToWishlist(product.getItemId(), product);
 //                      update the isWishListed field of the product
@@ -303,7 +309,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
                     public void onErrorResponse(VolleyError error) {
                         // Handle error
                         Log.e(TAG, "product failed to add into wishlist: " + error.toString());
-                        String message = product.getTitle() + " failed to add into wish list";
+                        String message = shrunkTitle + " failed to add into wishlist";
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                     }
                 });

@@ -34,9 +34,10 @@ import java.util.List;
 
 public class DashboardFragment extends Fragment implements ProductAdaptor.OnButtonClickListener, ProductAdaptor.OnProductClickListener {
 
-    private static final String URL = "http://10.0.2.2:3000";
+    private static final String URL = "http://maxTitleLength.0.2.2:3000";
     private static final String TAG = "DashboardFragment";
     private static final int SPAN_COUNT = 2;
+    private static final int maxTitleLength = 10;
 
     private ProductAdaptor productAdaptor;
     private RecyclerView recyclerView;
@@ -149,7 +150,9 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
     @Override
     public void onButtonClick(Product wishListItem) {
         // Handle the button click here based on the clicked item
-        Log.d(TAG, "onButtonClick: " + wishListItem.getTitle());
+        String title = wishListItem.getTitle();
+        Log.d(TAG, "onButtonClick: " + title);
+        String shrunkTitle = title.length() >= maxTitleLength ? title.substring(0, maxTitleLength) + "..." : title;
 //        delete the wishListItem from the wishList
         ApiCall.deleteFromWishlist(requireContext(), wishListItem.getItemId(), new Response.Listener<String>() {
             @Override
@@ -157,7 +160,7 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
                 // Handle the response
                 Log.d(TAG, "product removed into wishlist: " + response.toString());
                 //                      add a toast message indicating product successfully added into wish list
-                String message = wishListItem.getTitle() + " was removed from the wish list";
+                String message = shrunkTitle + " removed from wishlist";
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
                 //                      remove the product from the wish list
                 wishlistManager.removeProductFromWishlist(wishListItem.getItemId());
@@ -171,6 +174,8 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "delete error: " + error.toString());
+                String message = shrunkTitle + " failed to remove from wishlist";
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
     }

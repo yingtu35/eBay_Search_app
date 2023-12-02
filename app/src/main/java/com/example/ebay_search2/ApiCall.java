@@ -24,6 +24,7 @@ public class ApiCall {
     private static ApiCall mInstance;
     private RequestQueue mRequestQueue;
     private static Context mCtx;
+    private static final String fakePostal = "90009";
 
     private static final String TAG = "ApiCall";
 
@@ -93,59 +94,34 @@ public class ApiCall {
         Log.d(TAG, "getSearchResults: " + jsonRequest);
         try {
             if (jsonRequest.get("locationOption").equals("other")) {
+                // use current location
                 Log.d(TAG, "getSearchResults: " + jsonRequest.get("locationOption"));
                 getCurrentLocation(ctx, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         try {
-                            Log.d(TAG, "onResponse: " + response.getString("postal"));
-                            jsonRequest.put("otherLocation", response.getString("postal"));
+                            Log.d(TAG, "onResponse: " + response.optString("postal"));
+                            jsonRequest.put("otherLocation", response.optString("postal"));
                         } catch (Exception e) {
                             Log.d(TAG, "onResponse: " + e.getMessage());
                         }
-                        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
-                                + "&category=" + jsonRequest.optString("category")
-                                + "&New=" + jsonRequest.optString("New")
-                                + "&Used=" + jsonRequest.optString("Used")
-                                + "&Unspecified=" + jsonRequest.optString("Unspecified")
-                                + "&conditions=" + jsonRequest.optString("conditions")
-                                + "&localPickup=" + jsonRequest.optString("localPickup")
-                                + "&freeShipping=" + jsonRequest.optString("freeShipping")
-                                + "&distance=" + jsonRequest.optString("distance")
-                                + "&locationOption=" + jsonRequest.optString("locationOption")
-                                + "&otherLocation=" + jsonRequest.optString("otherLocation");
-                        if (jsonRequest.optString("locationOption").equals("zip")) {
-                            url += "&zip=" + jsonRequest.optString("zip");
-                        }
+                        String url = formatURL(jsonRequest);
                         Log.d(TAG, "getSearchResults: " + url);
                         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                                 listener, errorListener);
                         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
                     }
                 }, new Response.ErrorListener() {
-//                    TODO: give fake postal code if location is not available
+//                  give fake postal code if location is not available
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "getCurrentLocation: " + error.getMessage());
                         try {
-                            jsonRequest.put("otherLocation", "90009");
+                            jsonRequest.put("otherLocation", fakePostal);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
-                        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
-                                + "&category=" + jsonRequest.optString("category")
-                                + "&New=" + jsonRequest.optString("New")
-                                + "&Used=" + jsonRequest.optString("Used")
-                                + "&Unspecified=" + jsonRequest.optString("Unspecified")
-                                + "&conditions=" + jsonRequest.optString("conditions")
-                                + "&localPickup=" + jsonRequest.optString("localPickup")
-                                + "&freeShipping=" + jsonRequest.optString("freeShipping")
-                                + "&distance=" + jsonRequest.optString("distance")
-                                + "&locationOption=" + jsonRequest.optString("locationOption")
-                                + "&otherLocation=" + jsonRequest.optString("otherLocation");
-                        if (jsonRequest.optString("locationOption").equals("zip")) {
-                            url += "&zip=" + jsonRequest.optString("zip");
-                        }
+                        String url = formatURL(jsonRequest);
                         Log.d(TAG, "getSearchResults: " + url);
                         JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
                                 listener, errorListener);
@@ -154,25 +130,17 @@ public class ApiCall {
                 });
                 return;
             }
+            else {
+                // use zip code
+                String url = formatURL(jsonRequest);
+                Log.d(TAG, "getSearchResults: " + url);
+                JsonArrayRequest stringRequest = new JsonArrayRequest(Request.Method.GET, url, null,
+                        listener, errorListener);
+                ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+            }
         } catch (Exception e) {
             Log.d(TAG, "getSearchResults: " + e.getMessage());
         }
-//        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
-//                + "&category=" + jsonRequest.optString("category")
-//                + "&New=" + jsonRequest.optString("New")
-//                + "&Used=" + jsonRequest.optString("Used")
-//                + "&Unspecified=" + jsonRequest.optString("Unspecified")
-//                + "&conditions=" + jsonRequest.optString("conditions")
-//                + "&localPickup=" + jsonRequest.optString("localPickup")
-//                + "&freeShipping=" + jsonRequest.optString("freeShipping")
-//                + "&distance=" + jsonRequest.optString("distance")
-//                + "&locationOption=" + jsonRequest.optString("locationOption")
-//                + "&otherLocation=" + jsonRequest.optString("otherLocation")
-//                + "&zip=" + jsonRequest.optString("zip");
-//        Log.d(TAG, "getSearchResults: " + url);
-//        JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
-//                listener, errorListener);
-//        ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
     }
 
     public static void getSearchResultsExample(Context ctx, Response.Listener<JSONArray>
@@ -214,5 +182,25 @@ public class ApiCall {
         JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, url, null,
                 listener, errorListener);
         ApiCall.getInstance(ctx).addToRequestQueue(stringRequest);
+    }
+
+    private static String formatURL(JSONObject jsonRequest) {
+        String url = URL + "/search-ebay" + "?keyword=" + jsonRequest.optString("keyword")
+                + "&category=" + jsonRequest.optString("category")
+                + "&New=" + jsonRequest.optString("New")
+                + "&Used=" + jsonRequest.optString("Used")
+                + "&Unspecified=" + jsonRequest.optString("Unspecified")
+                + "&conditions=" + jsonRequest.optString("conditions")
+                + "&localPickup=" + jsonRequest.optString("localPickup")
+                + "&freeShipping=" + jsonRequest.optString("freeShipping")
+                + "&distance=" + jsonRequest.optString("distance")
+                + "&locationOption=" + jsonRequest.optString("locationOption");
+        if (jsonRequest.has("otherLocation")) {
+            url += "&otherLocation=" + jsonRequest.optString("otherLocation");
+        }
+        else {
+            url += "&zip=" + jsonRequest.optString("zipcode");
+        }
+        return url;
     }
 }
