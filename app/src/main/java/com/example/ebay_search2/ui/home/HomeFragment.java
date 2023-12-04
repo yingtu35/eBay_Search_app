@@ -53,7 +53,8 @@ public class HomeFragment extends Fragment {
     private FragmentHomeBinding binding;
 
     private static String TAG = "HomeFragment";
-    private static final String URL = "http://10.0.2.2:3000";
+    private static final String DEFAULT_DISTANCE = "10";
+//    private static final String URL = "http://10.0.2.2:3000";
     private static final String ERROR_TEXT = "Please enter mandatory field";
     private View root;
     private TextInputLayout inputKeywordLayout;
@@ -106,6 +107,10 @@ public class HomeFragment extends Fragment {
         // Toggle enable nearby search
         enableNearbySearchCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // If CheckBox is checked, make the components visible; otherwise, hide them
+            if (!isChecked) {
+                toggleSearchFromButton(R.id.search_from_current);
+                inputDistance.setText("");
+            }
             nearbySearchSection.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
@@ -332,13 +337,16 @@ public class HomeFragment extends Fragment {
             parameters.put("New", conditionNewCheckbox.isChecked() ? "true" : "false");
             parameters.put("Used", conditionUsedCheckbox.isChecked() ? "true" : "false");
             parameters.put("Unspecified", conditionUnspecifiedCheckbox.isChecked() ? "true" : "false");
-            parameters.put("conditions", getConditionsArray());
+//            parameters.put("conditions", getConditionsArray());
             parameters.put("localPickup", localPickupCheckbox.isChecked() ? "true" : "false");
             parameters.put("freeShipping", freeShippingCheckbox.isChecked() ? "true" : "false");
-            parameters.put("distance", inputDistance.getText().toString().equals("") ? "10000" : inputDistance.getText().toString());
-            parameters.put("locationOption", searchFromCurrentButton.isChecked() ? "other" : "zipcode");
+            parameters.put("distance", inputDistance.getText().toString().equals("") ? DEFAULT_DISTANCE : inputDistance.getText().toString());
+            parameters.put("locationOption", searchFromCurrentButton.isChecked() ? "current" : "other");
 //            parameters.put("otherLocation", postal);
-            parameters.put("zipcode", autoCompleteTextView.getText().toString());
+            if (searchFromZipcodeButton.isChecked()) {
+                parameters.put("otherLocation", autoCompleteTextView.getText().toString());
+            }
+//            parameters.put("zipcode", autoCompleteTextView.getText().toString());
             Log.d(TAG, "formRequestBody: " + parameters.toString());
         } catch (JSONException e) {
             e.printStackTrace();

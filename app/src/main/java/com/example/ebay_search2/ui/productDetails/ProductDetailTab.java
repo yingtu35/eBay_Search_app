@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.android.volley.Response;
@@ -56,6 +57,7 @@ public class ProductDetailTab extends Fragment {
     private String mParam2;
     private JSONObject allInfo;
     private static final String TAG = "ProductDetailTab";
+    private View rootView;
     private LinearLayout imageContainer;
     private LinearLayout specificationsContainer;
     private TextView productTitle;
@@ -64,6 +66,8 @@ public class ProductDetailTab extends Fragment {
     private TextView productBrand;
     private LinearLayout progressBarLayout;
     private ScrollView scrollView;
+    private TableRow productPriceRow;
+    private TableRow productBrandRow;
     private int screenWidth;
     private String title;
     private String price;
@@ -125,18 +129,11 @@ public class ProductDetailTab extends Fragment {
         // Inflate the layout for this fragment
 //        TODO: Hide a section if data is not available
 //        TODO: Display no results if all data is not available
-        View rootView =
+        rootView =
                 inflater.inflate(R.layout.fragment_product_detail_tab, container, false);
         rootView.setTag(TAG);
 
-        progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
-        scrollView = rootView.findViewById(R.id.productDetailScrollView);
-        imageContainer = rootView.findViewById(R.id.imageContainer);
-        specificationsContainer = rootView.findViewById(R.id.specificationsContainer);
-        productTitle = rootView.findViewById(R.id.productTitle);
-        productSubtitle = rootView.findViewById(R.id.productSubtitle);
-        productPrice = rootView.findViewById(R.id.productPrice);
-        productBrand = rootView.findViewById(R.id.productBrand);
+        bindView();
 
 //        get width and height of the screen
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -148,7 +145,18 @@ public class ProductDetailTab extends Fragment {
         return rootView;
     }
 
-
+    private void bindView() {
+        progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
+        scrollView = rootView.findViewById(R.id.productDetailScrollView);
+        imageContainer = rootView.findViewById(R.id.imageContainer);
+        productPriceRow = rootView.findViewById(R.id.productPriceRow);
+        productBrandRow = rootView.findViewById(R.id.productBrandRow);
+        specificationsContainer = rootView.findViewById(R.id.specificationsContainer);
+        productTitle = rootView.findViewById(R.id.productTitle);
+        productSubtitle = rootView.findViewById(R.id.productSubtitle);
+        productPrice = rootView.findViewById(R.id.productPrice);
+        productBrand = rootView.findViewById(R.id.productBrand);
+    }
 
     private void getDetails() {
         Log.d(TAG, "getDetails: " + allInfo.optString("itemId"));
@@ -169,18 +177,88 @@ public class ProductDetailTab extends Fragment {
     }
 
 
+//    TODO: skip rows if data is not available
     private void updateDetails(JSONObject response) {
         sendReturnPolicyToActivity(response);
         productImages = response.optJSONArray("productImages");
         itemSpecifics = response.optJSONArray("ItemSpecifics");
         Log.d(TAG, "updateDetails: " + productImages.toString());
         Log.d(TAG, "updateDetails: " + itemSpecifics.toString());
+        if (allInfo.has("title") && !allInfo.optString("title").equals("")) {
+            productPrice.setText("$" + allInfo.optString("currentPrice"));
+        }
         productTitle.setText(allInfo.optString("title"));
-        productPrice.setText("$" + allInfo.optString("currentPrice"));
+        if (allInfo.has("currentPrice") && !allInfo.optString("currentPrice").equals("")) {
+            productPrice.setText("$" + allInfo.optString("currentPrice"));
+        }
+//        productPrice.setText("$" + allInfo.optString("currentPrice"));
         updateProductSubtitle();
         updateProductImages();
         updateItemSpecifics();
+        updateVisibility();
     }
+
+    private void updateVisibility() {
+        if (productImages.length() == 0) {
+            imageContainer.setVisibility(View.GONE);
+        }
+        if (productTitle.getText().length() == 0) {
+            productTitle.setVisibility(View.GONE);
+        }
+        if (productSubtitle.getText().length() == 0) {
+            productSubtitle.setVisibility(View.GONE);
+        }
+        if (productPrice.getText().length() == 0) {
+            productPriceRow.setVisibility(View.GONE);
+        }
+        if (productBrand.getText().length() == 0) {
+            productBrandRow.setVisibility(View.GONE);
+        }
+if (specificationsContainer.getChildCount() == 0) {
+            specificationsContainer.setVisibility(View.GONE);
+        }
+
+
+    }
+
+//    private boolean dataExists(JSONObject response) {
+//        boolean dataExists = false;
+//        if (response.has("productImages")) {
+//            dataExists = true;
+//        }
+//        else {
+//            imageContainer.setVisibility(View.GONE);
+//        }
+//
+//        if (response.has("Title")) {
+//            dataExists = true;
+//        }
+//        else {
+//            productTitle.setVisibility(View.GONE);
+//        }
+//
+//        if (allInfo.has("currentPrice") || (allInfo.has("shippingInfo") && allInfo.optJSONObject("shippingInfo").has("shippingCost"))) {
+//            dataExists = true;
+//        }
+//        else {
+//            productSubtitle.setVisibility(View.GONE);
+//        }
+//
+//        if (allInfo.has("currentPrice")) {
+//            dataExists = true;
+//        }
+//        else {
+//            productPriceRow.setVisibility(View.GONE);
+//        }
+//
+//        if (response.optString("shippingInfo").equals("")) {
+//            dataExists = false;
+//        }
+//        if (response.optString("ItemSpecifics").equals("")) {
+//            dataExists = false;
+//        }
+//        return dataExists;
+//    }
 
 //    private void updateShipping(JSONObject response) {
 //        Log.d(TAG, "updateShipping: called");
@@ -198,11 +276,11 @@ public class ProductDetailTab extends Fragment {
 
     private void updateProductSubtitle() {
         String subtitle = "";
-        String shippingCost = allInfo.optJSONObject("shippingInfo").optString("shippingCost");
-        String currentPrice = "$" + allInfo.optString("currentPrice");
+        String shippingCost = allInfo.has("shippingInfo") ? allInfo.optJSONObject("shippingInfo").optString("shippingCost") : "";
+        String currentPrice = allInfo.has("currentPrice") ? "$" + allInfo.optString("currentPrice") : "";
         if (shippingCost.equals("0.0")) {
             subtitle = currentPrice + " with Free Shipping";
-        } else {
+        } else if (!shippingCost.equals("")){
             subtitle = currentPrice + " with $" + shippingCost + " Shipping";
         }
         productSubtitle.setText(subtitle);

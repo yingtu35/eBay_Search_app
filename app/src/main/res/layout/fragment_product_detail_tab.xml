@@ -58,13 +58,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textStyle="bold"
+                android:text=""
                 />
             <TextView
                 android:id="@+id/productSubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/purple_500"
-                android:textStyle="bold"/>
+                android:textStyle="bold"
+                android:text=""/>
 
             <TextView
                 android:layout_width="match_parent"
@@ -82,6 +84,7 @@
                 android:layout_height="wrap_content">
 
                 <TableRow
+                    android:id="@+id/productPriceRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <!-- Column 1 -->
@@ -98,6 +101,7 @@
                         android:paddingHorizontal="20dp"/>
                 </TableRow>
                 <TableRow
+                    android:id="@+id/productBrandRow"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
                     <!-- Column 1 -->
@@ -111,7 +115,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingHorizontal="20dp"
-                        android:text="N/A"/>
+                        android:text=""/>
                 </TableRow>
             </TableLayout>
             <TextView

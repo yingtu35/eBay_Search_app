@@ -194,15 +194,24 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
     private void addItemIntoProductList(JSONArray items) throws JSONException {
         for (int i = 0; i < items.length(); i++) {
             JSONObject item = items.getJSONObject(i);
+            Log.d(TAG, "addItemIntoProductList: " + item.toString());
             String allInfo = item.toString();
             String itemId = item.getString("itemId").toString();
             String title = item.getString("title").toString();
             String galleryURL = item.getString("galleryURL").toString();
             String viewItemURL = item.getString("viewItemURL").toString();
-            String postalCode = item.getString("postalCode").toString();
-            String shippingCost = item.getJSONObject("shippingInfo").getString("shippingCost").toString();
-            String currentPrice = item.getString("currentPrice").toString();
-            String condition = item.getString("condition").toString();
+            String postalCode = !item.getString("postalCode").toString().equals("null") ? item.getString("postalCode").toString() : "N/A";
+            String shippingCost = !item.getJSONObject("shippingInfo").getString("shippingCost").toString().equals("null") ? item.getJSONObject("shippingInfo").getString("shippingCost").toString() : "N/A";
+            String currentPrice = !item.getString("currentPrice").toString().equals("null") ? item.getString("currentPrice").toString() : "N/A";
+            String condition = !item.getString("condition").toString().equals("null") ? item.getString("condition").toString() : "N/A";
+
+//            String title = item.getString("title").toString();
+//            String galleryURL = item.getString("galleryURL").toString();
+//            String viewItemURL = item.getString("viewItemURL").toString();
+//            String postalCode = item.getString("postalCode").toString();
+//            String shippingCost = item.getJSONObject("shippingInfo").getString("shippingCost").toString();
+//            String currentPrice = item.getString("currentPrice").toString();
+//            String condition = item.getString("condition").toString();
             if (condition.endsWith(" - Refurbished")) {
                 condition = condition.substring(0, condition.length() - 14);
             }

@@ -198,13 +198,6 @@
                     style="@style/WhiteTextInputLayout"
                     app:errorEnabled="true"
                     app:errorTextColor="@color/error_text">
-                    <EditText
-                        android:id="@+id/input_zipcode"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:paddingStart="0dp"
-                        android:visibility="gone"
-                        android:hint="zipcode"/>
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>

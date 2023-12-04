@@ -93,7 +93,7 @@ public class ApiCall {
             listener, Response.ErrorListener errorListener) {
         Log.d(TAG, "getSearchResults: " + jsonRequest);
         try {
-            if (jsonRequest.get("locationOption").equals("other")) {
+            if (jsonRequest.get("locationOption").equals("current")) {
                 // use current location
                 Log.d(TAG, "getSearchResults: " + jsonRequest.get("locationOption"));
                 getCurrentLocation(ctx, new Response.Listener<JSONObject>() {
@@ -101,7 +101,7 @@ public class ApiCall {
                     public void onResponse(JSONObject response) {
                         try {
                             Log.d(TAG, "onResponse: " + response.optString("postal"));
-                            jsonRequest.put("otherLocation", response.optString("postal"));
+                            jsonRequest.put("zipCode", response.has("postal") ? response.optString("postal") : fakePostal);
                         } catch (Exception e) {
                             Log.d(TAG, "onResponse: " + e.getMessage());
                         }
@@ -117,7 +117,7 @@ public class ApiCall {
                     public void onErrorResponse(VolleyError error) {
                         Log.d(TAG, "getCurrentLocation: " + error.getMessage());
                         try {
-                            jsonRequest.put("otherLocation", fakePostal);
+                            jsonRequest.put("zipCode", fakePostal);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
@@ -190,7 +190,7 @@ public class ApiCall {
                 + "&New=" + jsonRequest.optString("New")
                 + "&Used=" + jsonRequest.optString("Used")
                 + "&Unspecified=" + jsonRequest.optString("Unspecified")
-                + "&conditions=" + jsonRequest.optString("conditions")
+//                + "&conditions=" + jsonRequest.optString("conditions")
                 + "&localPickup=" + jsonRequest.optString("localPickup")
                 + "&freeShipping=" + jsonRequest.optString("freeShipping")
                 + "&distance=" + jsonRequest.optString("distance")
@@ -199,7 +199,7 @@ public class ApiCall {
             url += "&otherLocation=" + jsonRequest.optString("otherLocation");
         }
         else {
-            url += "&zip=" + jsonRequest.optString("zipcode");
+            url += "&zipCode=" + jsonRequest.optString("zipCode");
         }
         return url;
     }
