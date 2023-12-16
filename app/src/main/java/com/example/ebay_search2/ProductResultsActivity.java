@@ -1,10 +1,14 @@
 package com.example.ebay_search2;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageView;
+import androidx.appcompat.widget.Toolbar;
 
 import com.example.ebay_search2.ui.productResults.ProductResultsFragment;
 
@@ -17,6 +21,25 @@ public class ProductResultsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_results_acitivity);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+            actionBar.setCustomView(R.layout.toolbar_product_results);
+
+            // Remove content insets
+            Toolbar parent = (Toolbar) actionBar.getCustomView().getParent();
+            parent.setContentInsetsAbsolute(0, 0);
+
+            // Set up back button click listener
+            ImageView backButton = actionBar.getCustomView().findViewById(R.id.backButton);
+            backButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    finish();
+                }
+            });
+        }
 
 //        ProductResultsFragment productResultsFragment = new ProductResultsFragment();
         // Retrieve parameters from Intent
@@ -43,4 +66,6 @@ public class ProductResultsActivity extends AppCompatActivity {
 
 
     }
+
+
 }

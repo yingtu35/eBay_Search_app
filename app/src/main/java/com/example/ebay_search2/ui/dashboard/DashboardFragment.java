@@ -1,5 +1,6 @@
 package com.example.ebay_search2.ui.dashboard;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +17,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ebay_search2.ApiCall;
+import com.example.ebay_search2.ProductDetailActivity;
 import com.example.ebay_search2.R;
 import com.example.ebay_search2.ui.ProductAdaptor;
 import com.example.ebay_search2.ui.WishlistManager;
@@ -32,10 +34,10 @@ import java.util.List;
 
 public class DashboardFragment extends Fragment implements ProductAdaptor.OnButtonClickListener, ProductAdaptor.OnProductClickListener {
 
-    private static final String URL = "http://10.0.2.2:3000";
+    private static final String URL = "http://maxTitleLength.0.2.2:3000";
     private static final String TAG = "DashboardFragment";
     private static final int SPAN_COUNT = 2;
-    private RequestQueue queue;
+    private static final int maxTitleLength = 10;
 
     private ProductAdaptor productAdaptor;
     private RecyclerView recyclerView;
@@ -62,10 +64,6 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
         wishlistTotalLayout = root.findViewById(R.id.wishlistTotalLayout);
         wishlistTotalItems = root.findViewById(R.id.wishlistTotalItems);
         wishlistTotalPrice = root.findViewById(R.id.wishlistTotalPrice);
-
-        // set up request queue
-        queue = Volley.newRequestQueue(requireContext());
-        queue.start();
 
 //        retrieve wishlist from wishListManager
         wishlistManager = WishlistManager.getInstance();
@@ -128,7 +126,6 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        queue.stop();
         binding = null;
     }
 
@@ -153,32 +150,34 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
     @Override
     public void onButtonClick(Product wishListItem) {
         // Handle the button click here based on the clicked item
-        Log.d(TAG, "onButtonClick: " + wishListItem.getTitle());
+        String title = wishListItem.getTitle();
+        Log.d(TAG, "onButtonClick: " + title);
+        String shrunkTitle = title.length() >= maxTitleLength ? title.substring(0, maxTitleLength) + "..." : title;
 //        delete the wishListItem from the wishList
-        StringRequest stringRequest = new StringRequest(Request.Method.DELETE, URL+"/delete-wish-list-item/"+wishListItem.getItemId(),
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Handle the response
-                        Log.d(TAG, "product removed into wishlist: " + response.toString());
-//                      add a toast message indicating product successfully added into wish list
-                        String message = wishListItem.getTitle() + " was removed from the wish list";
-                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
-//                      remove the product from the wish list
-                        wishlistManager.removeProductFromWishlist(wishListItem.getItemId());
-                        updateWishlistTotal();
-//                      update the isWishListed field of the product
-                        int position = wishList.indexOf(wishListItem);
-                        productAdaptor.removeItem(position);
+        ApiCall.deleteFromWishlist(requireContext(), wishListItem.getItemId(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                // Handle the response
+                Log.d(TAG, "product removed into wishlist: " + response.toString());
+                //                      add a toast message indicating product successfully added into wish list
+                String message = shrunkTitle + " removed from wishlist";
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+                //                      remove the product from the wish list
+                wishlistManager.removeProductFromWishlist(wishListItem.getItemId());
+                updateWishlistTotal();
+                //                      update the isWishListed field of the product
+                int position = wishList.indexOf(wishListItem);
+                productAdaptor.removeItem(position);
 
-                    }
-                }, new Response.ErrorListener() {
+            }
+        }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.d(TAG, "delete error: " + error.toString());
+                String message = shrunkTitle + " failed to remove from wishlist";
+                Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
             }
         });
-        queue.add(stringRequest);
     }
 
     @Override
@@ -186,11 +185,16 @@ public class DashboardFragment extends Fragment implements ProductAdaptor.OnButt
         // Handle item click here based on the clicked item
         Log.d(TAG, "onItemClick: " + wishListItem.getTitle());
         // You can perform any action you need when an item is clicked
+        Intent intent = new Intent(getActivity(), ProductDetailActivity.class);
+//        intent.putExtra("details", "details");
+        intent.putExtra("allInfo", wishListItem.getAllInfo());
+//        intent.putExtra("googleImage", "googleImage");
+        startActivity(intent);
     }
 
     private void updateWishlistTotal() {
         wishlistTotalItems.setText("Wishlist total (" + wishlistManager.getWishlistSize() + " items):");
-        wishlistTotalPrice.setText("$" + wishlistManager.getTotalPrice());
+        wishlistTotalPrice.setText("$" + String.format("%.2f", wishlistManager.getTotalPrice()));
         if (wishlistManager.getWishlistSize() == 0) {
             wishlistTotalLayout.setVisibility(View.GONE);
             noItemsInWishlistTextView.setVisibility(View.VISIBLE);

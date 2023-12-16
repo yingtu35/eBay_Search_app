@@ -12,9 +12,10 @@ public class Product {
     private String currentPrice;
     private String condition;
     private Boolean isWishListed;
+    private String allInfo;
 
     public Product(String itemId, String title, String galleryURL, String viewItemURL,
-                   String postalCode, String shippingCost, String currentPrice, String condition, Boolean isWishListed) {
+                   String postalCode, String shippingCost, String currentPrice, String condition, Boolean isWishListed, String allInfo) {
         this.itemId = itemId;
         this.title = title;
         this.galleryURL = galleryURL;
@@ -24,6 +25,7 @@ public class Product {
         this.currentPrice = currentPrice;
         this.condition = condition;
         this.isWishListed = isWishListed;
+        this.allInfo = allInfo;
     }
 
     public String getTitle(){ return title; }
@@ -39,6 +41,10 @@ public class Product {
 
     public Boolean getIsWishListed() {
         return isWishListed;
+    }
+
+    public String getAllInfo() {
+        return allInfo;
     }
 
     public void setIsWishListed(Boolean wishListed) {

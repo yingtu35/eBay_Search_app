@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/imagesTabLayout"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.productResults.ProductResultsFragment">
+    tools:context=".ui.productDetails.ImagesTab">
 
     <LinearLayout
         android:id="@+id/progressBarLayout"
@@ -23,34 +23,40 @@
             android:id="@+id/progressBarText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Searching Products..."
+            android:text="Fetching Product Images..."
             android:textColor="@color/purple_700"
             android:textStyle="bold"/>
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/productResultsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        tools:listitem="@layout/item_product" />
-
     <TextView
-        android:id="@+id/noProductsFoundTextView"
+        android:id="@+id/noPhotosFoundTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginHorizontal="20dp"
         android:elevation="2dp"
         android:gravity="center"
-        android:text="No products found"
+        android:text="No photos found"
         android:textColor="@color/black"
         android:textStyle="bold"
         android:paddingVertical="10dp"
         android:background="@drawable/no_items_in_wishlist_style"
         android:visibility="gone"/>
+
+    <ScrollView
+        android:id="@+id/imagesScrollView"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <LinearLayout
+            android:id="@+id/imagesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="8dp">
+        </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>

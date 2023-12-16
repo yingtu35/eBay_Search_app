@@ -2,11 +2,18 @@ package com.example.ebay_search2.ui.home;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -22,11 +29,11 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.example.ebay_search2.ApiCall;
 import com.example.ebay_search2.ProductResultsActivity;
 import com.example.ebay_search2.R;
 import com.example.ebay_search2.ui.WishlistManager;
@@ -38,30 +45,45 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class HomeFragment extends Fragment {
 
     private FragmentHomeBinding binding;
 
     private static String TAG = "HomeFragment";
-    private static final String URL = "http://10.0.2.2:3000";
+    private static final String DEFAULT_DISTANCE = "10";
     private static final String ERROR_TEXT = "Please enter mandatory field";
     private View root;
     private TextInputLayout inputKeywordLayout;
     private TextInputLayout inputZipcodeLayout;
     private EditText inputKeyword;
+    private Spinner spinner;
     private EditText inputDistance;
-    private EditText inputZipcode;
+//    private EditText inputZipcode;
+    private AutoCompleteTextView autoCompleteTextView;
     private LinearLayout nearbySearchSection;
     private RadioGroup searchFromGroup;
     private RadioButton searchFromCurrentButton;
     private RadioButton searchFromZipcodeButton;
+    private CheckBox conditionNewCheckbox;
+    private CheckBox conditionUsedCheckbox;
+    private CheckBox conditionUnspecifiedCheckbox;
+    private CheckBox localPickupCheckbox;
+    private CheckBox freeShippingCheckbox;
     private CheckBox enableNearbySearchCheckbox;
     private Button searchButton;
     private Button clearButton;
 
-    private static WishlistManager wishlistManager = WishlistManager.getInstance();
+    private String postal = "";
 
-    private RequestQueue queue;
+    private Handler handler;
+    private AutoSuggestAdaptor autoSuggestAdaptor;
+    private static final int TRIGGER_AUTO_COMPLETE = 100;
+    private static final long AUTO_COMPLETE_DELAY = 300;
+
+    private static WishlistManager wishlistManager = WishlistManager.getInstance();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -71,15 +93,9 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         root = binding.getRoot();
 
-        queue = Volley.newRequestQueue(requireContext());
-        queue.start();
-
         Log.d(TAG, "onCreateView: ");
 
         initializeForm(root);
-        // Initialize the wishlist from the server
-        StringRequest wishListRequest = initializeWishList();
-        queue.add(wishListRequest);
 
         searchFromGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -90,6 +106,10 @@ public class HomeFragment extends Fragment {
         // Toggle enable nearby search
         enableNearbySearchCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // If CheckBox is checked, make the components visible; otherwise, hide them
+            if (!isChecked) {
+                toggleSearchFromButton(R.id.search_from_current);
+                inputDistance.setText("");
+            }
             nearbySearchSection.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
@@ -106,8 +126,10 @@ public class HomeFragment extends Fragment {
                 }
 
 //                start product results activity
+                JSONObject parameters = formRequestBody();
                 Intent intent = new Intent(getActivity(), ProductResultsActivity.class);
                 // TODO: pass the form data to the product results activity
+                intent.putExtra("parameters", parameters.toString());
                 startActivity(intent);
             }
         });
@@ -121,6 +143,49 @@ public class HomeFragment extends Fragment {
             }
         });
 
+//        auto complete textView test
+//        set up auto suggest adapter
+        autoSuggestAdaptor = new AutoSuggestAdaptor(requireContext(), android.R.layout.simple_dropdown_item_1line);
+        autoCompleteTextView.setThreshold(2);
+        autoCompleteTextView.setAdapter(autoSuggestAdaptor);
+
+        autoCompleteTextView.setOnItemClickListener(
+                new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        autoCompleteTextView.setText(autoSuggestAdaptor.getObject(position));
+                    }
+                });
+
+        autoCompleteTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int
+                    count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before,
+                                      int count) {
+                handler.removeMessages(TRIGGER_AUTO_COMPLETE);
+                handler.sendEmptyMessageDelayed(TRIGGER_AUTO_COMPLETE,
+                        AUTO_COMPLETE_DELAY);
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        handler = new Handler(new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (msg.what == TRIGGER_AUTO_COMPLETE) {
+                    if (!TextUtils.isEmpty(autoCompleteTextView.getText())) {
+                        setZipCodeAutoComplete(autoCompleteTextView.getText().toString());
+                    }
+                }
+                return false;
+            }
+        });
+
 
         return root;
     }
@@ -128,8 +193,35 @@ public class HomeFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        queue.stop();
         binding = null;
+    }
+
+    private void setZipCodeAutoComplete(String text) {
+        ApiCall.getZipCodeAutoComplete(requireContext(), text, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.d(TAG, "onResponse: " + response);
+                //parsing logic, please change it as per your requirement
+                List<String> stringList = new ArrayList<>();
+                try {
+                    JSONObject responseObject = new JSONObject(response);
+                    JSONArray array = responseObject.getJSONArray("postalCodes");
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject row = array.getJSONObject(i);
+                        stringList.add(row.getString("postalCode"));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                //IMPORTANT: set data here and notify
+                autoSuggestAdaptor.setData(stringList);
+                autoSuggestAdaptor.notifyDataSetChanged();
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+            }
+        });
     }
 
     private void initializeForm(View root) {
@@ -141,20 +233,27 @@ public class HomeFragment extends Fragment {
         inputZipcodeLayout = root.findViewById(R.id.input_zipcode_layout);
         inputKeyword = root.findViewById(R.id.input_keyword);
         inputDistance = root.findViewById(R.id.input_distance);
-        inputZipcode = root.findViewById(R.id.input_zipcode);
+//        inputZipcode = root.findViewById(R.id.input_zipcode);
+        conditionNewCheckbox = root.findViewById(R.id.condition_new_checkbox);
+        conditionUsedCheckbox = root.findViewById(R.id.condition_used_checkbox);
+        conditionUnspecifiedCheckbox = root.findViewById(R.id.condition_unspecified_checkbox);
+        localPickupCheckbox = root.findViewById(R.id.local_pickup_checkbox);
+        freeShippingCheckbox = root.findViewById(R.id.free_shipping_checkbox);
         enableNearbySearchCheckbox = root.findViewById(R.id.enableNearbySearchCheckbox);
         searchButton = root.findViewById(R.id.button_search);
         clearButton = root.findViewById(R.id.button_clear);
+        autoCompleteTextView = root.findViewById(R.id.autoCompleteTextView);
 
         nearbySearchSection.setVisibility(View.GONE);
         enableNearbySearchCheckbox.setChecked(false);
         searchFromCurrentButton.setChecked(true);
         searchFromZipcodeButton.setChecked(false);
-        inputZipcode.setEnabled(false);
+//        inputZipcode.setEnabled(false);
+        autoCompleteTextView.setEnabled(false);
         inputKeywordLayout.setErrorIconDrawable(0);
         inputZipcodeLayout.setErrorIconDrawable(0);
 
-        Spinner spinner = (Spinner) root.findViewById(R.id.category_spinner);
+        spinner = (Spinner) root.findViewById(R.id.category_spinner);
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
                 requireContext(),
@@ -164,42 +263,22 @@ public class HomeFragment extends Fragment {
         // Specify the layout to use when the list of choices appears.
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
-    }
 
-    private StringRequest initializeWishList() {
-        StringRequest wishListRequest = new StringRequest(Request.Method.GET, URL+"/get-wish-list",
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        Log.d(TAG, response);
-                        try {
-                            if (response != null) {
-                                // parse the response
-                                JSONArray items = new JSONArray(response);
-                                Log.d(TAG, "wishListItems: " + items);
-                                addItemsInWishList(items);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, error.toString());
-            }
-        });
-        return wishListRequest;
     }
 
     private void resetForm() {
         inputKeyword.setText("");
         inputDistance.setText("");
-        inputZipcode.setText("");
+//        inputZipcode.setText("");
+        autoCompleteTextView.setText("");
         inputKeywordLayout.setError(null);
         inputZipcodeLayout.setError(null);
         nearbySearchSection.setVisibility(View.GONE);
+        conditionNewCheckbox.setChecked(false);
+        conditionUsedCheckbox.setChecked(false);
+        conditionUnspecifiedCheckbox.setChecked(false);
+        localPickupCheckbox.setChecked(false);
+        freeShippingCheckbox.setChecked(false);
         enableNearbySearchCheckbox.setChecked(false);
     }
 
@@ -209,28 +288,32 @@ public class HomeFragment extends Fragment {
             Log.d(TAG, "onCheckedChanged: current location");
             searchFromCurrentButton.setChecked(true);
             searchFromZipcodeButton.setChecked(false);
-            inputZipcode.setEnabled(false);
+            autoCompleteTextView.setEnabled(false);
+            inputZipcodeLayout.setError(null);
+//            inputZipcode.setEnabled(false);
 
         } else if (checkedId == R.id.search_from_zipcode) {
             // Do something when radioButton2 is checked
             Log.d(TAG, "onCheckedChanged: zipcode");
             searchFromCurrentButton.setChecked(false);
             searchFromZipcodeButton.setChecked(true);
-            inputZipcode.setEnabled(true);
+            autoCompleteTextView.setEnabled(true);
+//            inputZipcode.setEnabled(true);
         }
     }
 
     private boolean validateForm() {
         boolean isValidForm = true;
         String keyword = inputKeyword.getText().toString().trim();
-        String zipcode = inputZipcode.getText().toString();
+//        String zipcode = inputZipcode.getText().toString();
+        String zipcode = autoCompleteTextView.getText().toString();
         Log.d(TAG, zipcode);
         if (keyword.isEmpty()) {
             inputKeywordLayout.setError(ERROR_TEXT);
             Log.d(TAG, "validateForm: keyword failed");
             isValidForm = false;
         }
-        if (inputZipcode.isEnabled() & zipcode.isEmpty()) {
+        if (autoCompleteTextView.isEnabled() & zipcode.isEmpty()) {
             Log.d(TAG, "validateForm: zipcode failed");
             inputZipcodeLayout.setError(ERROR_TEXT);
             isValidForm = false;
@@ -245,22 +328,42 @@ public class HomeFragment extends Fragment {
         return isValidForm;
     }
 
-    private void addItemsInWishList(JSONArray items) throws JSONException {
-        Log.d(TAG, "addItemsInWishList: " + items.length());
-        for (int i = 0; i < items.length(); i++) {
-            JSONObject item = items.getJSONObject(i);
-            String itemId = item.getString("_id");
-            String title = item.has("Title") ? item.getString("Title") : "unknown";
-            String price = item.has("Price") ? item.getString("Price") : "unknown";
-            String shipping = item.has("Shipping") ? item.getString("Shipping") : "unknown";
-            String zip = item.has("Zip") ? item.getString("Zip") : "unknown";
-            String condition = item.has("Condition") ? item.getString("Condition") : "unknown";
-            String image = item.has("Image") ? item.getString("Image") : "";
-            String url = item.has("Url") ? item.getString("Url") : "";
-            Boolean isWishListed = true;
-            Product product = new Product(itemId, title, image, url, zip, shipping, price, condition, isWishListed);
-            Log.d(TAG, "addItemsInWishList: " + product.toString());
-            wishlistManager.addProductToWishlist(itemId, product);
+    private JSONObject formRequestBody() {
+        JSONObject parameters = new JSONObject();
+        try {
+            parameters.put("keyword", inputKeyword.getText().toString());
+            parameters.put("category", spinner.getSelectedItem().toString());
+            parameters.put("New", conditionNewCheckbox.isChecked() ? "true" : "false");
+            parameters.put("Used", conditionUsedCheckbox.isChecked() ? "true" : "false");
+            parameters.put("Unspecified", conditionUnspecifiedCheckbox.isChecked() ? "true" : "false");
+//            parameters.put("conditions", getConditionsArray());
+            parameters.put("localPickup", localPickupCheckbox.isChecked() ? "true" : "false");
+            parameters.put("freeShipping", freeShippingCheckbox.isChecked() ? "true" : "false");
+            parameters.put("distance", inputDistance.getText().toString().equals("") ? DEFAULT_DISTANCE : inputDistance.getText().toString());
+            parameters.put("locationOption", searchFromCurrentButton.isChecked() ? "current" : "other");
+//            parameters.put("otherLocation", postal);
+            if (searchFromZipcodeButton.isChecked()) {
+                parameters.put("otherLocation", autoCompleteTextView.getText().toString());
+            }
+//            parameters.put("zipcode", autoCompleteTextView.getText().toString());
+            Log.d(TAG, "formRequestBody: " + parameters.toString());
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        return parameters;
+    }
+
+    private JSONArray getConditionsArray() {
+        JSONArray conditions = new JSONArray();
+        if (conditionNewCheckbox.isChecked()) {
+            conditions.put("New");
+        }
+        if (conditionUsedCheckbox.isChecked()) {
+            conditions.put("Used");
+        }
+        if (conditionUnspecifiedCheckbox.isChecked()) {
+            conditions.put("Unspecified");
+        }
+        return conditions;
     }
 }

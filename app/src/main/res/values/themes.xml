@@ -14,6 +14,17 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="SplashScreenTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@color/purple_500</item>
+    </style>
+
+    <style name="NonMaterialButton" parent="Theme.AppCompat.Light.NoActionBar"></style>
+
+    <style name="Theme.EBay_Search2.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
     <style name="BottomNavigationViewCustom">
         <item name="android:background">@color/purple_500</item>
         <!-- Add any other custom styling you want -->
@@ -23,11 +34,6 @@
         <!-- Customize the box background color -->
         <item name="boxBackgroundColor">@android:color/white</item>
         <item name="boxStrokeErrorColor">@color/grey</item>
-    </style>
-
-    <style name="Theme.EBay_Search2.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="Theme.EBay_Search2.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

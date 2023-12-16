@@ -5,6 +5,7 @@
     <string name="title_home">Product Search</string>
     <string name="title_search_result">Search Results</string>
     <string name="error_mandatory_field">Please enter mandatory field</string>
+    <string name="zip_code_placeholder">zipcode</string>
 
     <string name="home_text">Hello</string>
     <string-array name="category_array">
@@ -18,9 +19,23 @@
         <item>Music</item>
         <item>Video, Games and Consoles</item>
     </string-array>
+    <string-array name="sorting_categories">
+        <item>Default</item>
+        <item>Name</item>
+        <item>Price</item>
+        <item>Days</item>
+    </string-array>
+    <string-array name="sorting_directions">
+        <item>Ascending</item>
+        <item>Descending</item>
+    </string-array>
 
-<!--    <string name="hello_blank_fragment">Hello blank fragment</string>-->
+    <!--    <string name="hello_blank_fragment">Hello blank fragment</string>-->
     <string name="title_activity_product_detail">ProductDetailActivity</string>
-    <string name="tab_text_1">Tab 1</string>
-    <string name="tab_text_2">Tab 2</string>
+    <string name="tab_text_1">PRODUCT</string>
+    <string name="tab_text_2">SHIPPING</string>
+    <string name="tab_text_3">PHOTOS</string>
+    <string name="tab_text_4">SIMILAR</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
