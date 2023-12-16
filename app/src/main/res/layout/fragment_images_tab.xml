@@ -28,6 +28,21 @@
             android:textStyle="bold"/>
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/noPhotosFoundTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="20dp"
+        android:elevation="2dp"
+        android:gravity="center"
+        android:text="No photos found"
+        android:textColor="@color/black"
+        android:textStyle="bold"
+        android:paddingVertical="10dp"
+        android:background="@drawable/no_items_in_wishlist_style"
+        android:visibility="gone"/>
+
     <ScrollView
         android:id="@+id/imagesScrollView"
         xmlns:android="http://schemas.android.com/apk/res/android"

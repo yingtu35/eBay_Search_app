@@ -21,19 +21,32 @@ import org.json.JSONObject;
  */
 
 public class ApiCall {
+    /**
+     * fakePostal is used when getCurrentLocation is not available
+     * IPINFOTOKEN is used to get current location
+     * USERNAME is used to get zip code completion from geonames
+     * MAX_ROWS is used to limit the number of zip code completion results
+     */
+    private static final String fakePostal = "90009";
+    private static final String USERNAME = "yingtu35";
+    private static final String MAX_ROWS = "5";
+    private static final String IPINFOTOKEN = "543916f91709cc";
+
+    /**
+     * API URLs
+     * uncomment the first one if you are using localhost
+     */
+    private static final String URL = "http://10.0.2.2:3000";
+//    private static final String URL = "http://ebaysearch.us-east-2.elasticbeanstalk.com";
+
+    /**
+     * TAG for debugging
+     */
+    private static final String TAG = "ApiCall";
     private static ApiCall mInstance;
     private RequestQueue mRequestQueue;
     private static Context mCtx;
-    private static final String fakePostal = "90009";
 
-    private static final String TAG = "ApiCall";
-
-    private static final String USERNAME = "yingtu35";
-    private static final String MAX_ROWS = "5";
-
-//    private static final String URL = "http://10.0.2.2:3000";
-    private static final String URL = "http://ebaysearch.us-east-2.elasticbeanstalk.com";
-    private static final String IPINFOTOKEN = "543916f91709cc";
 
     public ApiCall(Context ctx) {
         mCtx = ctx;
@@ -58,7 +71,7 @@ public class ApiCall {
         getRequestQueue().add(req);
     }
 
-    public static void make(Context ctx, String query, Response.Listener<String>
+    public static void getZipCodeAutoComplete(Context ctx, String query, Response.Listener<String>
             listener, Response.ErrorListener errorListener) {
         String url = "http://api.geonames.org/postalCodeSearchJSON?postalcode_startsWith=" + query + "&maxRows=" + MAX_ROWS + "&username=" + USERNAME + "&country=US";
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,

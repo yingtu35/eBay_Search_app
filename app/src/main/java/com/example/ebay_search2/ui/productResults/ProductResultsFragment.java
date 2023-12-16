@@ -201,7 +201,7 @@ public class ProductResultsFragment extends Fragment implements ProductAdaptor.O
             String galleryURL = item.getString("galleryURL").toString();
             String viewItemURL = item.getString("viewItemURL").toString();
             String postalCode = !item.getString("postalCode").toString().equals("null") ? item.getString("postalCode").toString() : "N/A";
-            String shippingCost = !item.getJSONObject("shippingInfo").getString("shippingCost").toString().equals("null") ? item.getJSONObject("shippingInfo").getString("shippingCost").toString() : "N/A";
+            String shippingCost = !item.getJSONObject("shippingInfo").optString("shippingCost").equals("null") ? item.getJSONObject("shippingInfo").optString("shippingCost"): "N/A";
             String currentPrice = !item.getString("currentPrice").toString().equals("null") ? item.getString("currentPrice").toString() : "N/A";
             String condition = !item.getString("condition").toString().equals("null") ? item.getString("condition").toString() : "N/A";
 

@@ -45,6 +45,7 @@ public class ImagesTab extends Fragment {
     private LinearLayout progressBarLayout;
     private ScrollView imagesScrollView;
     private LinearLayout imagesContainer;
+    private TextView noPhotosFoundTextView;
     private int screenWidth;
 
     public ImagesTab() {
@@ -93,6 +94,7 @@ public class ImagesTab extends Fragment {
         progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
         imagesScrollView = rootView.findViewById(R.id.imagesScrollView);
         imagesContainer = rootView.findViewById(R.id.imagesContainer);
+        noPhotosFoundTextView = rootView.findViewById(R.id.noPhotosFoundTextView);
 
         //        get width and height of the screen
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -110,19 +112,23 @@ public class ImagesTab extends Fragment {
             public void onResponse(JSONObject response) {
                 Log.d(TAG, "onResponse: " + response.toString());
                 updatePhotos(response);
-                progressBarLayout.setVisibility(View.GONE);
-                imagesScrollView.setVisibility(View.VISIBLE);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "getDetails: " + error.getMessage());
+                Log.d(TAG, "getDetails: " + error.toString());
             }
         });
     }
 
     private void updatePhotos(JSONObject response) {
         JSONArray thumbnailLinks = response.optJSONArray("thumbnailLinks");
+        if (thumbnailLinks.length() == 0) {
+            progressBarLayout.setVisibility(View.GONE);
+            noPhotosFoundTextView.setVisibility(View.VISIBLE);
+            return;
+        }
+
         for (int i = 0; i < thumbnailLinks.length(); i++) {
             String link = thumbnailLinks.optString(i) + ".jpg";
             Log.d(TAG, "updatePhotos: " + link);
@@ -138,5 +144,8 @@ public class ImagesTab extends Fragment {
             Picasso.with(getContext()).load(link).centerInside().fit().into(imageView);
             imagesContainer.addView(imageView);
         }
+
+        progressBarLayout.setVisibility(View.GONE);
+        imagesScrollView.setVisibility(View.VISIBLE);
     }
 }

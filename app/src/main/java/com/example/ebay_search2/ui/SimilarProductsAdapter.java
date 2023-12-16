@@ -73,6 +73,7 @@ public class SimilarProductsAdapter extends RecyclerView.Adapter<SimilarProducts
     public void setSortingCategory(String sortingCategory) {
         if (!sortingCategory.equals(this.sortingCategory)) {
             this.sortingCategory = sortingCategory;
+            this.sortingDirection = "Ascending";
             if (!sortingCategory.equals("Default")) {
                 sortSimilarProductList();
             }

@@ -15,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -51,6 +52,7 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
     private RecyclerView similarProductsRecyclerView;
     private LinearLayout progressBarLayout;
     private LinearLayout similarProductsLayout;
+    private TextView noResultsFoundTextView;
 
     public SimilarProductsTab() {
         // Required empty public constructor
@@ -102,6 +104,7 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
         similarProductsRecyclerView = (RecyclerView) rootView.findViewById(R.id.similarProductsRecyclerView);
         sortingCategorySpinner = (Spinner) rootView.findViewById(R.id.sorting_category_spinner);
         sortingDirectionSpinner = (Spinner) rootView.findViewById(R.id.sorting_direction_spinner);
+        noResultsFoundTextView = (TextView) rootView.findViewById(R.id.noResultsFoundTextView);
 
         // Create an ArrayAdapter using the string array and a default spinner layout.
         ArrayAdapter<CharSequence> sortingCategoryAdapter = ArrayAdapter.createFromResource(
@@ -129,6 +132,8 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String sortingCategory = adapterView.getItemAtPosition(i).toString();
                 similarProductsAdapter.setSortingCategory(sortingCategory);
+                // reset sorting direction to ascending
+                sortingDirectionSpinner.setSelection(0);
                 Log.d(TAG, "onItemSelected: " + sortingCategory);
             }
             @Override
@@ -157,7 +162,14 @@ public class SimilarProductsTab extends Fragment implements SimilarProductsAdapt
             public void onResponse(JSONArray response) {
                 Log.d(TAG, "onResponse: " + response.toString());
                 List<SimilarProduct> similarProductList = addSimilarProducts(response);
-
+                if (similarProductList.size() == 0) {
+                    noResultsFoundTextView.setVisibility(View.VISIBLE);
+                    progressBarLayout.setVisibility(View.GONE);
+//                    disable both spinners
+                    sortingCategorySpinner.setEnabled(false);
+                    sortingDirectionSpinner.setEnabled(false);
+                    return;
+                }
                 linearLayoutManager = new LinearLayoutManager(getContext());
                 similarProductsAdapter = new SimilarProductsAdapter(similarProductList, SimilarProductsTab.this);
                 similarProductsRecyclerView.setLayoutManager(linearLayoutManager);

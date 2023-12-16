@@ -54,7 +54,6 @@ public class HomeFragment extends Fragment {
 
     private static String TAG = "HomeFragment";
     private static final String DEFAULT_DISTANCE = "10";
-//    private static final String URL = "http://10.0.2.2:3000";
     private static final String ERROR_TEXT = "Please enter mandatory field";
     private View root;
     private TextInputLayout inputKeywordLayout;
@@ -180,7 +179,7 @@ public class HomeFragment extends Fragment {
             public boolean handleMessage(Message msg) {
                 if (msg.what == TRIGGER_AUTO_COMPLETE) {
                     if (!TextUtils.isEmpty(autoCompleteTextView.getText())) {
-                        makeApiCall(autoCompleteTextView.getText().toString());
+                        setZipCodeAutoComplete(autoCompleteTextView.getText().toString());
                     }
                 }
                 return false;
@@ -197,8 +196,8 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    private void makeApiCall(String text) {
-        ApiCall.make(requireContext(), text, new Response.Listener<String>() {
+    private void setZipCodeAutoComplete(String text) {
+        ApiCall.getZipCodeAutoComplete(requireContext(), text, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.d(TAG, "onResponse: " + response);
@@ -367,27 +366,4 @@ public class HomeFragment extends Fragment {
         }
         return conditions;
     }
-
-//    private String getCurrentLocation() {
-////        make api call to get current location
-//        ApiCall.getCurrentLocation(requireContext(), new Response.Listener<JSONObject>() {
-//            @Override
-//            public void onResponse(JSONObject response) {
-//                Log.d(TAG, "onResponse: " + response.toString());
-//                try {
-//                    postal = response.get("postal").toString();
-//
-//                } catch (JSONException e) {
-//                    e.printStackTrace();
-//                }
-//                return;
-//            }
-//        }, new Response.ErrorListener() {
-//            @Override
-//            public void onErrorResponse(VolleyError error) {
-//                Log.d(TAG, "getCurrentLocation: " + error.toString());
-//            }
-//        });
-//        return postal;
-//    }
 }

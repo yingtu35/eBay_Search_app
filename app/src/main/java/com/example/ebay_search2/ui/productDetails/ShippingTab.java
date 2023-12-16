@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.example.ebay_search2.R;
@@ -53,6 +54,7 @@ public class ShippingTab extends Fragment {
     private TextView returnsWithinView;
     private TextView refundModeView;
     private TextView shippedByView;
+    private TableRow storeNameRow;
     private int popularityScore;
     private String policy;
     private String returnsWithin;
@@ -190,6 +192,8 @@ public class ShippingTab extends Fragment {
 
         progressBarLayout = rootView.findViewById(R.id.progressBarLayout);
         shippingDetailsScrollView = rootView.findViewById(R.id.shippingDetailsScrollView);
+
+        storeNameRow = rootView.findViewById(R.id.storeNameRow);
     }
 
     private void updateShipping(JSONObject allInfo) {
@@ -200,10 +204,18 @@ public class ShippingTab extends Fragment {
         popularity.setText(popularityScore + "%");
         circularScore.setProgress(popularityScore);
         updateFeedbackRatingStar(allInfo.optJSONObject("sellerInfo").optString("feedbackRatingStar"));
-        Double shipCost = Double.parseDouble(allInfo.optJSONObject("shippingInfo").optString("shippingCost"));
+//        check if shipping cost is an empty string
+        if (allInfo.optJSONObject("shippingInfo").optString("shippingCost").equals("")) {
+            shippingCost.setText("N/A");
+        }
+        Double shipCost = !allInfo.optJSONObject("shippingInfo").optString("shippingCost").equals("") ? Double.parseDouble(allInfo.optJSONObject("shippingInfo").optString("shippingCost")) : 0.0;
         shippingCost.setText(shipCost == 0.0 ? "Free shipping" : shipCost.toString());
         globalShipping.setText(allInfo.optJSONObject("shippingInfo").optString("shipToLocations").equals("Worldwide") ? "Yes" : "No");
         handlingTime.setText(allInfo.optJSONObject("shippingInfo").optString("handlingTime"));
+
+        if (storeName.getText().equals("null") || storeName.getText().equals("")) {
+            storeNameRow.setVisibility(View.GONE);
+        }
     }
 
     private void adjustPopularityPaddingStart() {
@@ -277,7 +289,6 @@ public class ShippingTab extends Fragment {
     }
 
     private boolean getReturnPolicy() {
-//        TODO: ask for return policy from activity
         String value = getActivity().getIntent().getExtras().getString("returnPolicy");
         Log.d(TAG, "getReturnPolicy: " + value);
         if (value != null) {
