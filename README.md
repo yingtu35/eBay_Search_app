@@ -42,7 +42,7 @@
     <a href="https://github.com/yingtu35/eBay_Search_app"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/yingtu35/eBay_Search_app">View Demo</a>
+    <a href="https://youtu.be/5e3OU2CHzfU" target="_blank">View Demo</a>
     ·
     <a href="https://github.com/yingtu35/eBay_Search_app/issues">Report Bug</a>
     ·
