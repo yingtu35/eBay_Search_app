@@ -31,7 +31,8 @@ public class ApiCall {
     private static final String USERNAME = "yingtu35";
     private static final String MAX_ROWS = "5";
 
-    private static final String URL = "http://10.0.2.2:3000";
+//    private static final String URL = "http://10.0.2.2:3000";
+    private static final String URL = "http://ebaysearch.us-east-2.elasticbeanstalk.com";
     private static final String IPINFOTOKEN = "543916f91709cc";
 
     public ApiCall(Context ctx) {
