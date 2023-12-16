@@ -31,7 +31,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/yingtu35/eBay_Search_app">
-    <img src="images/app_logo.png" alt="Logo">
+    <img src="images/app_Logo.png" alt="Logo">
   </a>
 
 <h3 align="center">eBay Search</h3>
@@ -83,7 +83,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-<img src="images/product_image_1.png" alt="product_image"><br>
+<div align="center">
+  <img src="images/product_image_1.png" height="300" alt="product_image">
+</div>
 
 eBay_Search_app is a mobile application built on Android. Users can create customized search on eBay products, view product information and add products to wishlist if you find something interesting!
 
@@ -133,8 +135,11 @@ Enjoy the short 2-min demo to see how eBay_Search_app works.
 
 [Demo Link][demo-url]
 
-<img src="images/product_image_2.png" alt="Logo">
-<img src="images/product_image_3.png" alt="Logo">
+<div align="center" display="flex" flex-direction="row" justify-content="center">
+<img src="images/product_image_2.png" height="300" alt="Logo">
+<img src="images/product_image_3.png" 
+height="300" alt="Logo">
+</div>
 
 <!-- [![eBay_Search_app demo](images/video%20thumbnail.png)](http://www.youtube.com/watch?v=MnJX33HtIVE "eBay_Search_app demo") -->
 
