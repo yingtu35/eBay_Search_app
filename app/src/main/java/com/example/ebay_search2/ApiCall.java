@@ -36,8 +36,8 @@ public class ApiCall {
      * API URLs
      * uncomment the first one if you are using localhost
      */
-    private static final String URL = "http://10.0.2.2:3000";
-//    private static final String URL = "http://ebaysearch.us-east-2.elasticbeanstalk.com";
+//    private static final String URL = "http://10.0.2.2:3000";
+    private static final String URL = "http://ebaysearch.us-east-2.elasticbeanstalk.com";
 
     /**
      * TAG for debugging
